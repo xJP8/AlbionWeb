@@ -408,15 +408,24 @@ function renderResults(priceData) {
   });
 
   const itemRowHtml = (row) => {
-    const age = timeAgo(row.bestDate);
+    const age  = timeAgo(row.bestDate);
+    const tier = tierNum(row.item.id);
+    const meta = itemMetaText(row.item.id);
     return `
     <tr>
       <td>
         <div class="table-item-cell">
-          ${itemImgHtml(row.item.id, row.item.name, "item-img--sm")}
+          <div class="table-item-img-wrap">
+            <img class="item-img item-img--sm"
+                 src="${itemImageUrl(row.item.id)}"
+                 alt="${escapeAttr(row.item.name)}"
+                 loading="lazy"
+                 onerror="this.style.visibility='hidden'">
+            ${tier ? `<span class="table-tier-badge">${toRoman(tier)}</span>` : ''}
+          </div>
           <div>
             <span class="table-item-name">${escapeHtml(row.item.name)}${enchantBadgeHtml(row.item.id)}</span>
-            <span class="table-item-id">${row.item.id}</span>
+            <span class="table-item-meta">${meta || row.item.id}</span>
           </div>
         </div>
       </td>
@@ -460,18 +469,19 @@ function renderResults(priceData) {
         </div>
       </div>
 
-      ${Object.entries(groups).map(groupHtml).join("")}
-
-      ${ungrouped.length > 0 ? `
-        <div class="city-group city-group--nodata">
-          <div class="city-group__header">
-            <div class="city-group__title">Sin órdenes de venta</div>
-          </div>
-          <table class="results__table">
-            <thead><tr><th>Item</th><th class="text-center">Cantidad</th><th class="text-center">Precio / ud.</th><th class="text-center">Total</th><th class="text-center">Actualizado</th></tr></thead>
-            <tbody>${ungrouped.map(itemRowHtml).join("")}</tbody>
-          </table>
-        </div>` : ""}
+      <div class="city-groups-grid">
+        ${Object.entries(groups).map(groupHtml).join("")}
+        ${ungrouped.length > 0 ? `
+          <div class="city-group city-group--nodata">
+            <div class="city-group__header">
+              <div class="city-group__title">Sin órdenes de venta</div>
+            </div>
+            <table class="results__table">
+              <thead><tr><th>Item</th><th class="text-center">Cantidad</th><th class="text-center">Precio / ud.</th><th class="text-center">Total</th><th class="text-center">Actualizado</th></tr></thead>
+              <tbody>${ungrouped.map(itemRowHtml).join("")}</tbody>
+            </table>
+          </div>` : ""}
+      </div>
 
       <div class="results__grand-total">
         <span class="results__grand-label">Total estimado</span>

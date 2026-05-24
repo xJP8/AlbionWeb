@@ -608,12 +608,21 @@ select.qty-input {
 .results__table tbody tr:hover td { background: rgba(201, 160, 50, 0.03); }
 .results__table tbody tr.row--nodata td { opacity: 0.45; }
 
+/* ── City groups grid ───────────────────────────────────── */
+.city-groups-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
 /* ── City groups ────────────────────────────────────────── */
 .city-group {
-  margin-bottom: var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
+  /* alinear al tope para que grupos con distinto nº de items no se estiren */
+  align-self: start;
 }
 
 .city-group__header {
@@ -682,11 +691,43 @@ select.qty-input {
 .text-right  { text-align: right; }
 .text-center { text-align: center; }
 
+/* Imagen más grande dentro de las tablas de resultados */
+.results__table .item-img--sm {
+  width: 44px;
+  height: 44px;
+}
+
 /* Item cell with image */
 .table-item-cell {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+}
+
+.table-item-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.table-tier-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 2px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--color-silver-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .table-item-name {
@@ -695,13 +736,12 @@ select.qty-input {
   font-size: 0.85rem;
 }
 
-.table-item-id {
+.table-item-meta {
   display: block;
-  font-family: var(--font-display);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
   color: var(--color-text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .city-badge {
@@ -905,6 +945,10 @@ select.qty-input {
   .cities-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .city-groups-grid {
+    grid-template-columns: 1fr;
   }
 }
 
