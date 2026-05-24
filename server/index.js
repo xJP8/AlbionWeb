@@ -169,9 +169,9 @@ app.get("/api/market/prices", async (req, res) => {
       .join(",");
 
     const base =
-      req.query.server === "east"
-        ? "https://east.albion-online-data.com/api/v2/stats/prices"
-        : "https://www.albion-online-data.com/api/v2/stats/prices";
+      req.query.server === "east"   ? "https://east.albion-online-data.com/api/v2/stats/prices"
+    : req.query.server === "west"   ? "https://www.albion-online-data.com/api/v2/stats/prices"
+    :                                 "https://europe.albion-online-data.com/api/v2/stats/prices";
 
     const url = `${base}/${items}?locations=${encodedCities}`;
     const response = await fetch(url);

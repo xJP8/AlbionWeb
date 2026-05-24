@@ -346,7 +346,7 @@ async function calculatePlan() {
   try {
     const itemIds = itemList.map((i) => i.id).join(",");
     const cities  = [...selectedCities].join(",");
-    const server  = "west";
+    const server  = "europe";
 
     const res = await fetch(
       `/api/market/prices?items=${encodeURIComponent(itemIds)}&cities=${encodeURIComponent(cities)}&server=${server}`,
