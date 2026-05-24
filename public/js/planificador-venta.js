@@ -454,7 +454,10 @@ function renderResults(priceData) {
     <div class="results__table-wrap">
       <div class="results__header">
         <h2 class="results__title">Plan de venta</h2>
-        <span class="results__meta">Actualizado ${now} · Servidor Europa</span>
+        <div class="results__header-right">
+          <span class="results__meta">Actualizado ${now} · Servidor Europa</span>
+          <button class="btn-refresh" id="refresh-btn" title="Actualizar precios">↻</button>
+        </div>
       </div>
 
       ${Object.entries(groups).map(groupHtml).join("")}
@@ -486,6 +489,13 @@ function renderResults(priceData) {
       </p>
     </div>
   `;
+
+  resultsEl.querySelector('#refresh-btn').addEventListener('click', () => {
+    const btn = resultsEl.querySelector('#refresh-btn');
+    btn.classList.add('btn-refresh--spinning');
+    btn.addEventListener('animationend', () => btn.classList.remove('btn-refresh--spinning'), { once: true });
+    calculatePlan();
+  });
 }
 
 // ── Utils ────────────────────────────────────────────────
