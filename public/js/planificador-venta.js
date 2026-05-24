@@ -135,10 +135,11 @@ function timeAgo(dateStr) {
   const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days  = Math.floor(diff / 86400000);
-  if (mins < 1)   return { text: "ahora",      cls: "age--fresh"  };
-  if (mins < 60)  return { text: `${mins}m`,   cls: "age--fresh"  };
-  if (hours < 24) return { text: `${hours}h`,  cls: "age--ok"     };
-  return              { text: `${days}d`,       cls: "age--stale"  };
+  if (mins  <   1) return { text: "ahora",    cls: "age--fresh" };  // < 1 min  → verde
+  if (mins  <  60) return { text: `${mins}m`, cls: "age--fresh" };  // < 1 h    → verde
+  if (hours <   6) return { text: `${hours}h`,cls: "age--ok"    };  // < 6 h    → amarillo
+  if (hours <  24) return { text: `${hours}h`,cls: "age--warn"  };  // < 24 h   → naranja
+  return                  { text: `${days}d`, cls: "age--stale" };  // ≥ 1 día  → rojo
 }
 
 // ── City toggles ─────────────────────────────────────────

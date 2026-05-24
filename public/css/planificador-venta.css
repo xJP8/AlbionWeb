@@ -706,8 +706,9 @@ select.qty-input {
   font-weight: 700;
 }
 .age--fresh { color: #3ecf7a; }
-.age--ok    { color: var(--color-silver-dim); }
-.age--stale { color: #e09040; }
+.age--ok    { color: #e8c04a; }
+.age--warn  { color: #e07830; }
+.age--stale { color: #e05050; }
 
 .results__disclaimer {
   margin-top: var(--space-sm);
