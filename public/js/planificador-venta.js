@@ -13,11 +13,33 @@ const CITIES = [
 ];
 
 const DEFAULT_CITIES = new Set(["Bridgewatch", "Martlock", "Thetford", "Fort Sterling", "Lymhurst"]);
+const LS_KEY = "dragones-planificador";
+
 // ── State ────────────────────────────────────────────────
 let itemList       = [];
 let selectedCities = new Set(DEFAULT_CITIES);
 let pendingItem    = null;
 let searchTimer    = null;
+
+// ── Persistencia local ───────────────────────────────────
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      items:  itemList,
+      cities: [...selectedCities],
+    }));
+  } catch { /* cuota superada u otro error */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const { items, cities } = JSON.parse(raw);
+    if (Array.isArray(items))  itemList       = items;
+    if (Array.isArray(cities)) selectedCities = new Set(cities);
+  } catch { /* datos corruptos — ignorar */ }
+}
 
 // ── DOM refs ─────────────────────────────────────────────
 const searchInput    = document.getElementById("item-search");
@@ -134,6 +156,7 @@ function initCities() {
       if (cb.checked) selectedCities.add(cb.value);
       else selectedCities.delete(cb.value);
       cb.closest(".city-toggle").classList.toggle("city-toggle--active", cb.checked);
+      saveState();
     });
   });
 }
@@ -295,9 +318,11 @@ function renderItemList() {
   itemListEl.querySelectorAll('.item-card__qty-input').forEach((input) => {
     input.addEventListener('change', () => {
       const val = parseInt(input.value, 10);
-      if (val > 0) itemList[Number(input.dataset.index)].qty = val;
+      if (val > 0) { itemList[Number(input.dataset.index)].qty = val; saveState(); }
     });
   });
+
+  saveState();
 }
 
 // ── Calculate plan ───────────────────────────────────────
@@ -468,5 +493,6 @@ function showResultsError(msg) {
 }
 
 // ── Init ─────────────────────────────────────────────────
+loadState();
 initCities();
 renderItemList();
