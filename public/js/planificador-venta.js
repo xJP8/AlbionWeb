@@ -275,7 +275,6 @@ function renderItemList() {
             ${meta ? `<span class="item-card__sub">${meta}</span>` : ''}
           </div>
           <div class="item-card__qty-wrap">
-            <span class="item-card__qty-sym">×</span>
             <input type="number" class="item-card__qty-input"
                    value="${item.qty}" min="1" data-index="${i}">
           </div>
