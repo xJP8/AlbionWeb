@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Planificador de venta — Dragones de Plata. Descubre en qué ciudad vender cada item al mejor precio.">
+  <title>Dragones de Plata | Planificador de Venta</title>
+
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/nav.css">
+  <link rel="stylesheet" href="../../css/footer.css">
+  <link rel="stylesheet" href="../../css/planificador-venta.css">
+
+  <link rel="icon" type="image/png" href="../../assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════ -->
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="container nav__inner">
+
+      <a href="../../index.html" class="nav__logo">
+        <img src="../../assets/img/logo.png" alt="Escudo Dragones de Plata" class="nav__logo-img">
+        <div class="nav__logo-text">
+          Dragones de Plata
+          <span>Albion Online</span>
+        </div>
+      </a>
+
+      <button class="nav__toggle" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav__links">
+        <li><a href="../../index.html">Inicio</a></li>
+        <li><a href="../pertenencias.html">Pertenencias</a></li>
+        <li><a href="../objetivos.html">Objetivos</a></li>
+        <li><a href="../eventos.html">Eventos</a></li>
+        <li><a href="../herramientas.html" class="nav__link--active">Herramientas</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       TOOL HEADER
+  ══════════════════════════════════════════════════════ -->
+  <header class="tool-header">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="../herramientas.html">Herramientas</a>
+        <span aria-hidden="true">›</span>
+        <span>Planificador de Venta</span>
+      </nav>
+      <h1 class="tool-header__title">Planificador de Venta</h1>
+      <p class="tool-header__desc">
+        Añade los items que quieres vender, selecciona las ciudades y calcula
+        dónde obtendrás el mejor precio para cada uno.
+      </p>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       PLANNER
+  ══════════════════════════════════════════════════════ -->
+  <main class="planner">
+    <div class="container">
+
+      <div class="planner__setup">
+
+        <!-- ── Panel izquierdo: items ── -->
+        <section class="planner__panel" aria-labelledby="panel-items-title">
+
+          <h2 class="panel-title" id="panel-items-title">
+            <span class="panel-step" aria-hidden="true">1</span>
+            Items a vender
+          </h2>
+
+          <!-- Buscador -->
+          <div class="item-search">
+            <div class="item-search__field">
+              <label for="item-search" class="field-label">Buscar item</label>
+              <input
+                type="text"
+                id="item-search"
+                class="item-search__input"
+                placeholder="Ej: Capa de Expedicionista T5…"
+                autocomplete="off"
+                spellcheck="false"
+                aria-autocomplete="list"
+                aria-controls="search-dropdown"
+              >
+              <div id="search-dropdown" class="search-dropdown" role="listbox" aria-label="Sugerencias de items"></div>
+            </div>
+
+            <div>
+              <label for="item-qty" class="qty-label">Cantidad</label>
+              <div class="qty-stepper">
+                <button class="qty-stepper__btn" id="qty-minus" type="button" aria-label="Reducir">−</button>
+                <input type="number" id="item-qty" class="qty-input qty-input--stepper" value="1" min="1" max="999999">
+                <button class="qty-stepper__btn" id="qty-plus"  type="button" aria-label="Aumentar">+</button>
+              </div>
+            </div>
+
+            <div style="padding-top: 1.35rem;">
+              <button id="add-item-btn" class="btn btn-primary" aria-label="Añadir item a la lista">
+                Añadir
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de items añadidos -->
+          <div id="item-list" class="item-list" aria-live="polite" aria-label="Lista de items"></div>
+
+        </section>
+
+        <!-- ── Panel derecho: ciudades + calcular ── -->
+        <section class="planner__panel planner__panel--side" aria-labelledby="panel-cities-title">
+
+          <h2 class="panel-title" id="panel-cities-title">
+            <span class="panel-step" aria-hidden="true">2</span>
+            Ciudades
+          </h2>
+
+          <div
+            id="cities-grid"
+            class="cities-grid"
+            role="group"
+            aria-labelledby="panel-cities-title"
+          ></div>
+
+          <button id="calc-btn" class="btn btn-primary btn--full">
+            ▶ Calcular plan
+          </button>
+
+        </section>
+
+      </div>
+
+
+      <!-- ── Resultados ── -->
+      <section id="results" class="results" aria-live="polite" aria-label="Resultados del plan de venta">
+        <div class="results__placeholder">
+          <p>Los resultados aparecerán aquí después de calcular el plan.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+
+      <div class="footer__inner">
+
+        <div class="footer__brand">
+          <div class="footer__brand-name">Dragones de Plata</div>
+          <p class="footer__brand-desc">
+            Gremio de Albion Online. Fuerza en la unidad, honor en la batalla.
+          </p>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Secciones</div>
+          <nav class="footer__nav" aria-label="Navegación de pie de página">
+            <a href="../../index.html">Inicio</a>
+            <a href="../pertenencias.html">Pertenencias</a>
+            <a href="../objetivos.html">Objetivos</a>
+            <a href="../eventos.html">Eventos</a>
+            <a href="../herramientas.html">Herramientas</a>
+          </nav>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Comunidad</div>
+          <nav class="footer__nav" aria-label="Redes del gremio">
+            <a href="#" target="_blank" rel="noopener">Discord</a>
+            <a href="#" target="_blank" rel="noopener">Reddit</a>
+            <a href="#" target="_blank" rel="noopener">Albion Online</a>
+          </nav>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <span class="footer__copy">© 2026 Dragones de Plata. Todos los derechos reservados.</span>
+        <span class="footer__server">
+          <span class="footer__dot"></span>
+          Servidor activo
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <script src="../../js/nav.js"></script>
+  <script src="../../js/planificador-venta.js"></script>
+
+</body>
+</html>

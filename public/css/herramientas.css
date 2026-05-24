@@ -1,0 +1,212 @@
+/* ============================================================
+   DRAGONES DE PLATA — Herramientas
+   ============================================================ */
+
+/* ── Page Hero ──────────────────────────────────────────── */
+.page-hero {
+  padding: calc(var(--nav-height) + var(--space-xl)) 0 var(--space-xl);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 0%, rgba(201, 160, 50, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(184, 48, 48, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.page-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201, 160, 50, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 160, 50, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 70% 90% at 50% 0%, black, transparent);
+  pointer-events: none;
+}
+
+.page-hero__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 620px;
+  margin: 0 auto;
+  animation: fadeUp 0.8s ease both;
+}
+
+.page-hero__eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+.page-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+  line-height: 1.1;
+  margin-bottom: var(--space-sm);
+}
+
+.page-hero__title span {
+  color: var(--color-gold-bright);
+  text-shadow: 0 0 32px var(--color-accent-glow);
+}
+
+.page-hero__desc {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── Grid de herramientas ───────────────────────────────── */
+.herramientas-hub {
+  padding: var(--space-lg) 0 var(--space-xl);
+}
+
+.herramientas-hub__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* ── Tool card ──────────────────────────────────────────── */
+.tool-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+/* Barra superior animada */
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-red));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition);
+}
+
+/* Brillo de fondo sutil */
+.tool-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(201, 160, 50, 0.04), transparent);
+  pointer-events: none;
+}
+
+.tool-card:hover {
+  border-color: rgba(201, 160, 50, 0.28);
+  transform: translateY(-5px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 160, 50, 0.08);
+}
+
+.tool-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Cards no disponibles */
+.tool-card--soon {
+  cursor: default;
+}
+
+.tool-card--soon .tool-card__icon {
+  filter: grayscale(0.4);
+  transition: filter var(--transition);
+}
+
+.tool-card--soon:hover .tool-card__icon {
+  filter: grayscale(0);
+}
+
+.tool-card__icon {
+  font-size: 2.6rem;
+  line-height: 1;
+  margin-bottom: var(--space-xs);
+}
+
+.tool-card__name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+}
+
+.tool-card__desc {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.tool-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.tool-card__status {
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.tool-card__status--ready {
+  background: rgba(62, 207, 122, 0.1);
+  border-color: rgba(62, 207, 122, 0.25);
+  color: #3ecf7a;
+}
+
+/* ── Animaciones ────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .herramientas-hub__grid {
+    grid-template-columns: 1fr;
+  }
+}

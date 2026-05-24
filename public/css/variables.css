@@ -1,0 +1,171 @@
+/* ============================================================
+   DRAGONES DE PLATA — Variables y Reset Global
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+  /* Paleta principal — inspirada en el escudo: negro, dorado, rojo */
+  --color-bg:          #080807;
+  --color-surface:     #111110;
+  --color-surface-2:   #181714;
+  --color-border:      rgba(201, 160, 50, 0.14);
+
+  --color-silver:      #e8dfc8;
+  --color-silver-dim:  #9a8f7a;
+  --color-accent:      #c9a032;          /* Dorado principal */
+  --color-accent-glow: rgba(201, 160, 50, 0.32);
+  --color-red:         #b83030;          /* Rojo del escudo */
+  --color-red-dim:     rgba(184, 48, 48, 0.18);
+  --color-gold:        #c9a032;
+  --color-gold-dim:    rgba(201, 160, 50, 0.18);
+  --color-gold-bright: #e8c04a;
+
+  --color-text:        #e0d8c8;
+  --color-text-muted:  #7a6f5a;
+
+  /* Tipografía */
+  --font-display: 'Cinzel', serif;
+  --font-body:    'Lato', sans-serif;
+
+  /* Espaciado */
+  --space-xs:  0.5rem;
+  --space-sm:  1rem;
+  --space-md:  2rem;
+  --space-lg:  4rem;
+  --space-xl:  8rem;
+
+  /* Bordes */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* Sombras */
+  --shadow-glow: 0 0 30px var(--color-accent-glow);
+  --shadow-card: 0 4px 28px rgba(0, 0, 0, 0.7);
+
+  /* Transiciones */
+  --transition: 0.3s ease;
+  --transition-slow: 0.6s ease;
+
+  /* Layout */
+  --max-width: 1200px;
+  --nav-height: 72px;
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ── Utilidades ─────────────────────────────────────────── */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  color: var(--color-silver);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  margin-bottom: var(--space-md);
+}
+
+.section-title::after {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), transparent);
+  margin-top: 8px;
+}
+
+/* ── Botón base ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0.65rem 1.6rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background: transparent;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-silver-dim);
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-silver);
+  color: var(--color-silver);
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
