@@ -173,6 +173,7 @@ app.get("/api/market/prices", async (req, res) => {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`AODP ${response.status}`);
     const data = await response.json();
+    res.set("Cache-Control", "no-store");
     res.json(data);
   } catch (err) {
     console.error("Market prices error:", err.message);

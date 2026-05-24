@@ -349,7 +349,8 @@ async function calculatePlan() {
     const server  = "west";
 
     const res = await fetch(
-      `/api/market/prices?items=${encodeURIComponent(itemIds)}&cities=${encodeURIComponent(cities)}&server=${server}`
+      `/api/market/prices?items=${encodeURIComponent(itemIds)}&cities=${encodeURIComponent(cities)}&server=${server}`,
+      { cache: "no-store" }
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
 
