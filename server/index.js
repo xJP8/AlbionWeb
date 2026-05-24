@@ -13,7 +13,11 @@ const PORT = 3000;
 const GUILD_ID = "Bq7m4jXMSXOnuMqoajFqmA";
 
 app.use(cors());
-app.use(express.static(join(__dirname, "../public")));
+app.use(express.static(join(__dirname, "../public"), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => res.setHeader("Cache-Control", "no-store"),
+}));
 
 // 🔥 Endpoints proxy
 
