@@ -71,6 +71,23 @@ function enchantBadgeHtml(id) {
     : "";
 }
 
+function tierNum(id) {
+  const m = id.match(/^T(\d)_/i);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+function toRoman(n) { return ROMAN[n] || String(n); }
+
+function itemMetaText(id) {
+  const tier = tierNum(id);
+  const enc  = enchantNum(id);
+  const parts = [];
+  if (tier) parts.push(`T${tier}`);
+  if (enc)  parts.push(`Enc. ${enc}`);
+  return parts.join(' · ');
+}
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -89,7 +106,9 @@ function fmt(n) {
 
 function timeAgo(dateStr) {
   if (!dateStr) return null;
-  const diff = Date.now() - new Date(dateStr).getTime();
+  // AODP returns UTC timestamps without timezone suffix — force UTC parsing
+  const utcStr = /Z$|[+-]\d{2}:\d{2}$/.test(dateStr) ? dateStr : dateStr + 'Z';
+  const diff = Date.now() - new Date(utcStr).getTime();
   if (isNaN(diff) || diff < 0) return null;
   const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
@@ -235,37 +254,47 @@ function renderItemList() {
   }
 
   itemListEl.innerHTML = `
-    <ul class="item-list__ul">
-      ${itemList.map((item, i) => `
-        <li class="item-list__item">
-          ${itemImgHtml(item.id, item.name, "item-img--md")}
-          <div class="item-list__info">
-            <span class="item-list__name">
-              ${escapeHtml(item.name)}${enchantBadgeHtml(item.id)}
-            </span>
-            <span class="item-list__id">${item.id}</span>
+    <ul class="item-cards">
+      ${itemList.map((item, i) => {
+        const tier   = tierNum(item.id);
+        const enc    = enchantNum(item.id);
+        const encCls = enc ? `enchant-border--${enc}` : '';
+        const meta   = itemMetaText(item.id);
+        return `
+        <li class="item-card">
+          <div class="item-card__icon-wrap ${encCls}">
+            <img class="item-card__img"
+                 src="${itemImageUrl(item.id)}"
+                 alt="${escapeAttr(item.name)}"
+                 loading="lazy"
+                 onerror="this.style.visibility='hidden'">
+            ${tier ? `<span class="item-card__tier-badge">${toRoman(tier)}</span>` : ''}
           </div>
-          <div class="item-list__qty-wrap">
-            <span class="item-list__qty-label">×</span>
-            <input type="number" class="item-list__qty-input"
+          <div class="item-card__body">
+            <span class="item-card__name">${escapeHtml(item.name)}</span>
+            ${meta ? `<span class="item-card__sub">${meta}</span>` : ''}
+          </div>
+          <div class="item-card__qty-wrap">
+            <span class="item-card__qty-sym">×</span>
+            <input type="number" class="item-card__qty-input"
                    value="${item.qty}" min="1" data-index="${i}">
           </div>
-          <button class="item-list__remove" data-index="${i}"
+          <button class="item-card__remove" data-index="${i}"
                   aria-label="Eliminar ${escapeAttr(item.name)}">✕</button>
-        </li>
-      `).join("")}
+        </li>`;
+      }).join('')}
     </ul>
   `;
 
-  itemListEl.querySelectorAll(".item-list__remove").forEach((btn) => {
-    btn.addEventListener("click", () => {
+  itemListEl.querySelectorAll('.item-card__remove').forEach((btn) => {
+    btn.addEventListener('click', () => {
       itemList.splice(Number(btn.dataset.index), 1);
       renderItemList();
     });
   });
 
-  itemListEl.querySelectorAll(".item-list__qty-input").forEach((input) => {
-    input.addEventListener("change", () => {
+  itemListEl.querySelectorAll('.item-card__qty-input').forEach((input) => {
+    input.addEventListener('change', () => {
       const val = parseInt(input.value, 10);
       if (val > 0) itemList[Number(input.dataset.index)].qty = val;
     });
@@ -367,9 +396,9 @@ function renderResults(priceData) {
         </div>
       </td>
       <td class="text-center">${fmt(row.item.qty)}</td>
-      <td class="text-right"><span class="price">${fmt(row.bestPrice)}</span></td>
-      <td class="text-right"><span class="price">${fmt(row.rowTotal)}</span></td>
-      <td class="text-right">${age ? `<span class="price-age ${age.cls}">${age.text}</span>` : `<span class="no-data">—</span>`}</td>
+      <td class="text-center"><span class="price">${fmt(row.bestPrice)}</span></td>
+      <td class="text-center"><span class="price">${fmt(row.rowTotal)}</span></td>
+      <td class="text-center">${age ? `<span class="price-age ${age.cls}">${age.text}</span>` : `<span class="no-data">—</span>`}</td>
     </tr>`;
   };
 
@@ -387,9 +416,9 @@ function renderResults(priceData) {
           <tr>
             <th>Item</th>
             <th class="text-center">Cantidad</th>
-            <th class="text-right">Precio / ud.</th>
-            <th class="text-right">Total</th>
-            <th class="text-right">Actualizado</th>
+            <th class="text-center">Precio / ud.</th>
+            <th class="text-center">Total</th>
+            <th class="text-center">Actualizado</th>
           </tr>
         </thead>
         <tbody>${groupRows.map(itemRowHtml).join("")}</tbody>
@@ -411,7 +440,7 @@ function renderResults(priceData) {
             <div class="city-group__title">Sin órdenes de venta</div>
           </div>
           <table class="results__table">
-            <thead><tr><th>Item</th><th class="text-center">Cantidad</th><th class="text-right">Precio / ud.</th><th class="text-right">Total</th><th class="text-right">Actualizado</th></tr></thead>
+            <thead><tr><th>Item</th><th class="text-center">Cantidad</th><th class="text-center">Precio / ud.</th><th class="text-center">Total</th><th class="text-center">Actualizado</th></tr></thead>
             <tbody>${ungrouped.map(itemRowHtml).join("")}</tbody>
           </table>
         </div>` : ""}
