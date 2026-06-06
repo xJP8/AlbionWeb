@@ -1,0 +1,15 @@
+{
+  "news": [
+    {
+      "id": 1,
+      "featured": true,
+      "tag": "logro",
+      "tagLabel": "🏆 Logro",
+      "title": "Los Dragones de Plata vuelven a Albion",
+      "excerpt": "Después de un largo descanso, el gremio regresa con fuerza. Nuevos miembros, nuevos objetivos y las mismas ganas de dominar el mundo.",
+      "date": "2026-05-24",
+      "dateLabel": "24 mayo, 2026",
+      "link": "#"
+    }
+  ]
+}
