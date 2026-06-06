@@ -347,15 +347,14 @@
   cursor: pointer;
 }
 
-/* Category label row */
-.category-label-row {
+/* Category select row */
+.category-select-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
+  gap: 6px;
+  align-items: stretch;
 }
 
-.category-label-row .field-label { margin-bottom: 0; }
+.category-select-row .field-input { flex: 1; min-width: 0; }
 
 .cat-edit-btn {
   font-family: var(--font-display);
