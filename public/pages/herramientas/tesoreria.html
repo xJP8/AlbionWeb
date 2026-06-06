@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tesorería del gremio Dragones de Plata. Registra y monitorea ingresos y gastos del gremio.">
+  <title>Dragones de Plata | Tesorería</title>
+
+  <link rel="stylesheet" href="../../css/variables.css?v=1">
+  <link rel="stylesheet" href="../../css/nav.css?v=1">
+  <link rel="stylesheet" href="../../css/footer.css?v=1">
+  <link rel="stylesheet" href="../../css/tesoreria.css?v=1">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <link rel="icon" type="image/png" href="../../assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════ -->
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="container nav__inner">
+
+      <a href="../../index.html" class="nav__logo">
+        <img src="../../assets/img/logo.png" alt="Escudo Dragones de Plata" class="nav__logo-img">
+        <div class="nav__logo-text">
+          Dragones de Plata
+          <span>Albion Online</span>
+        </div>
+      </a>
+
+      <button class="nav__toggle" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav__links">
+        <li><a href="../../index.html">Inicio</a></li>
+        <li><a href="../pertenencias.html">Pertenencias</a></li>
+        <li><a href="../objetivos.html">Objetivos</a></li>
+        <li><a href="../eventos.html">Eventos</a></li>
+        <li><a href="../herramientas.html" class="nav__link--active">Herramientas</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       TOOL HEADER
+  ══════════════════════════════════════════════════════ -->
+  <header class="tool-header">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="../herramientas.html">Herramientas</a>
+        <span aria-hidden="true">›</span>
+        <span>Tesorería</span>
+      </nav>
+      <div class="tool-header__row">
+        <div>
+          <h1 class="tool-header__title">Tesorería</h1>
+          <p class="tool-header__desc">
+            Registra ingresos y gastos. Los datos se guardan en tu navegador —
+            usa exportar para hacer copias de seguridad.
+          </p>
+        </div>
+        <div class="tool-header__actions">
+          <label class="btn btn-ghost" for="import-file" title="Importar datos desde un fichero JSON">
+            ↑ Importar
+            <input type="file" id="import-file" accept=".json" style="display:none">
+          </label>
+          <button id="export-btn" class="btn btn-ghost" title="Exportar datos a un fichero JSON">↓ Exportar</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════════════════ -->
+  <main class="tesoreria-main">
+    <div class="container">
+
+      <!-- ── Dashboard ── -->
+      <section class="dashboard" aria-label="Resumen de tesorería">
+
+        <div class="stat-cards">
+
+          <div class="tstat-card tstat-card--ingreso">
+            <div class="tstat-card__label">Total ingresos</div>
+            <div class="tstat-card__value" id="stat-ingresos">0</div>
+            <div class="tstat-card__unit">plata</div>
+          </div>
+
+          <div class="tstat-card tstat-card--gasto">
+            <div class="tstat-card__label">Total gastos</div>
+            <div class="tstat-card__value" id="stat-gastos">0</div>
+            <div class="tstat-card__unit">plata</div>
+          </div>
+
+          <div class="tstat-card tstat-card--balance" id="balance-card">
+            <div class="tstat-card__label">Balance neto</div>
+            <div class="tstat-card__value" id="stat-balance">0</div>
+            <div class="tstat-card__unit">plata</div>
+          </div>
+
+        </div>
+
+        <div class="dashboard__bottom">
+
+          <!-- Gráfico de evolución -->
+          <div class="chart-panel">
+            <div class="chart-panel__header">
+              <span class="panel-label">Evolución del balance</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="balance-chart" aria-label="Gráfico de evolución del balance"></canvas>
+              <div class="chart-empty" id="chart-empty">Añade entradas para ver el gráfico.</div>
+            </div>
+          </div>
+
+          <!-- Desglose por categoría -->
+          <div class="breakdown-panel">
+            <div class="breakdown-col">
+              <div class="panel-label breakdown-col__label breakdown-col__label--ingreso">Ingresos por categoría</div>
+              <ul class="breakdown-list" id="breakdown-ingresos">
+                <li class="breakdown-empty">Sin datos</li>
+              </ul>
+            </div>
+            <div class="breakdown-col">
+              <div class="panel-label breakdown-col__label breakdown-col__label--gasto">Gastos por categoría</div>
+              <ul class="breakdown-list" id="breakdown-gastos">
+                <li class="breakdown-empty">Sin datos</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ── Formulario ── -->
+      <section class="form-section" aria-labelledby="form-title">
+
+        <h2 class="section-panel-title" id="form-title">
+          <span class="panel-step">+</span>
+          Nueva entrada
+        </h2>
+
+        <form class="entry-form" id="entry-form" novalidate>
+
+          <div class="form-row form-row--top">
+
+            <div class="form-field">
+              <label class="field-label">Tipo</label>
+              <div class="type-toggle" role="group" aria-label="Tipo de entrada">
+                <button type="button" class="type-btn type-btn--ingreso type-btn--active" data-type="ingreso">
+                  ▲ Ingreso
+                </button>
+                <button type="button" class="type-btn type-btn--gasto" data-type="gasto">
+                  ▼ Gasto
+                </button>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <div class="category-label-row">
+                <label class="field-label" for="f-category">Categoría</label>
+                <button type="button" id="cat-edit-btn" class="cat-edit-btn" title="Gestionar categorías">✎ Editar</button>
+              </div>
+              <select id="f-category" class="field-input field-select"></select>
+              <!-- Panel gestor de categorías -->
+              <div id="cat-manager" class="cat-manager" hidden>
+                <div class="cat-manager__add">
+                  <input type="text" id="cat-new-input" class="cat-manager__input" placeholder="Nueva categoría…" maxlength="40">
+                  <button type="button" id="cat-add-btn" class="btn btn-primary btn--sm">Añadir</button>
+                </div>
+                <ul id="cat-list" class="cat-manager__list"></ul>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-row form-row--bottom">
+
+            <div class="form-field">
+              <label class="field-label" for="f-amount">Cantidad (plata)</label>
+              <input type="number" id="f-amount" class="field-input" placeholder="0" min="1">
+            </div>
+
+            <div class="form-field">
+              <label class="field-label" for="f-date">Fecha</label>
+              <input type="date" id="f-date" class="field-input">
+            </div>
+
+            <div class="form-field form-field--notes">
+              <label class="field-label" for="f-notes">Notas</label>
+              <input type="text" id="f-notes" class="field-input" placeholder="Descripción opcional">
+            </div>
+
+            <div class="form-field form-field--submit">
+              <label class="field-label" aria-hidden="true">&nbsp;</label>
+              <button type="submit" class="btn btn-primary">Añadir</button>
+            </div>
+
+          </div>
+
+
+          <div class="form-error" id="form-error" role="alert" aria-live="polite"></div>
+
+        </form>
+
+      </section>
+
+
+      <!-- ── Historial ── -->
+      <section class="history-section" aria-labelledby="history-title">
+
+        <div class="history-header">
+          <h2 class="section-panel-title" id="history-title">
+            <span class="panel-step">☰</span>
+            Historial
+          </h2>
+
+          <div class="history-filters">
+            <select id="filter-type" class="filter-select">
+              <option value="">Todos los tipos</option>
+              <option value="ingreso">Ingresos</option>
+              <option value="gasto">Gastos</option>
+            </select>
+            <select id="filter-category" class="filter-select">
+              <option value="">Todas las categorías</option>
+            </select>
+            <button id="clear-filters-btn" class="btn btn-ghost btn--sm">Limpiar filtros</button>
+          </div>
+        </div>
+
+        <div class="history-table-wrap">
+          <table class="history-table" aria-label="Historial de entradas">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Categoría</th>
+                <th>Notas</th>
+                <th class="text-right">Cantidad</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr class="history-empty-row">
+                <td colspan="6">Ninguna entrada todavía. Añade la primera arriba.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+
+      <div class="footer__inner">
+
+        <div class="footer__brand">
+          <div class="footer__brand-name">Dragones de Plata</div>
+          <p class="footer__brand-desc">
+            Gremio de Albion Online. Fuerza en la unidad, honor en la batalla.
+          </p>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Secciones</div>
+          <nav class="footer__nav" aria-label="Navegación de pie de página">
+            <a href="../../index.html">Inicio</a>
+            <a href="../pertenencias.html">Pertenencias</a>
+            <a href="../objetivos.html">Objetivos</a>
+            <a href="../eventos.html">Eventos</a>
+            <a href="../herramientas.html">Herramientas</a>
+          </nav>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Comunidad</div>
+          <nav class="footer__nav" aria-label="Redes del gremio">
+            <a href="#" target="_blank" rel="noopener">Discord</a>
+            <a href="#" target="_blank" rel="noopener">Reddit</a>
+            <a href="#" target="_blank" rel="noopener">Albion Online</a>
+          </nav>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <span class="footer__copy">© 2026 Dragones de Plata. Todos los derechos reservados.</span>
+        <span class="footer__server">
+          <span class="footer__dot"></span>
+          Servidor activo
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <script src="../../js/nav.js?v=1"></script>
+  <script src="../../js/tesoreria.js?v=1"></script>
+
+</body>
+</html>
