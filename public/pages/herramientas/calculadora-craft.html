@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculadora de Craft — Dragones de Plata. Calcula el coste de materiales y el beneficio de craftear cualquier item.">
+  <title>Dragones de Plata | Calculadora de Craft</title>
+
+  <link rel="stylesheet" href="../../css/variables.css?v=1">
+  <link rel="stylesheet" href="../../css/nav.css?v=1">
+  <link rel="stylesheet" href="../../css/footer.css?v=1">
+  <link rel="stylesheet" href="../../css/calculadora-craft.css?v=1">
+
+  <link rel="icon" type="image/png" href="../../assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="container nav__inner">
+      <a href="../../index.html" class="nav__logo">
+        <img src="../../assets/img/logo.png" alt="Escudo Dragones de Plata" class="nav__logo-img">
+        <div class="nav__logo-text">
+          Dragones de Plata
+          <span>Albion Online</span>
+        </div>
+      </a>
+      <button class="nav__toggle" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav__links">
+        <li><a href="../../index.html">Inicio</a></li>
+        <li><a href="../pertenencias.html">Pertenencias</a></li>
+        <li><a href="../objetivos.html">Objetivos</a></li>
+        <li><a href="../eventos.html">Eventos</a></li>
+        <li><a href="../herramientas.html" class="nav__link--active">Herramientas</a></li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- TOOL HEADER -->
+  <header class="tool-header">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="../herramientas.html">Herramientas</a>
+        <span aria-hidden="true">›</span>
+        <span>Calculadora de Craft</span>
+      </nav>
+      <h1 class="tool-header__title">Calculadora de Craft</h1>
+      <p class="tool-header__desc">
+        Introduce el item que quieres craftear, añade los materiales manualmente y calcula
+        dónde comprar cada material más barato y dónde vender el resultado al mejor precio.
+      </p>
+    </div>
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="craft-main">
+    <div class="container">
+
+      <div class="craft-setup">
+
+        <!-- Panel izquierdo -->
+        <div class="craft-left">
+
+          <!-- Paso 1: Item a craftear -->
+          <section class="craft-panel" aria-labelledby="panel-craft-title">
+            <h2 class="panel-title" id="panel-craft-title">
+              <span class="panel-step">1</span>
+              Item a craftear
+            </h2>
+
+            <div class="craft-item-row">
+              <div class="craft-item-search">
+                <label class="field-label" for="craft-search">Buscar item</label>
+                <div class="search-field-wrap">
+                  <input type="text" id="craft-search" class="field-input"
+                    placeholder="Ej: Hacha de guerra T5…"
+                    autocomplete="off" spellcheck="false"
+                    aria-autocomplete="list" aria-controls="craft-dropdown">
+                  <div id="craft-dropdown" class="search-dropdown" role="listbox"></div>
+                </div>
+              </div>
+
+              <div>
+                <label class="field-label" for="craft-qty">Cantidad</label>
+                <div class="qty-stepper">
+                  <button class="qty-stepper__btn" id="craft-qty-minus" type="button" aria-label="Reducir">−</button>
+                  <input type="number" id="craft-qty" class="qty-input qty-input--stepper" value="1" min="1">
+                  <button class="qty-stepper__btn" id="craft-qty-plus"  type="button" aria-label="Aumentar">+</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="field-label" for="return-rate">Retorno %</label>
+                <input type="number" id="return-rate" class="field-input field-input--narrow"
+                  value="0" min="0" max="100" step="0.1" placeholder="0">
+              </div>
+            </div>
+
+            <!-- Item seleccionado -->
+            <div id="craft-item-selected" class="craft-item-badge" hidden></div>
+
+          </section>
+
+          <!-- Paso 2: Materiales -->
+          <section class="craft-panel" aria-labelledby="panel-mats-title">
+            <h2 class="panel-title" id="panel-mats-title">
+              <span class="panel-step">2</span>
+              Materiales
+            </h2>
+
+            <div class="mat-add-row">
+              <div class="mat-search-wrap">
+                <label class="field-label" for="mat-search">Buscar material</label>
+                <div class="search-field-wrap">
+                  <input type="text" id="mat-search" class="field-input"
+                    placeholder="Ej: Lingote de metal T5…"
+                    autocomplete="off" spellcheck="false"
+                    aria-autocomplete="list" aria-controls="mat-dropdown">
+                  <div id="mat-dropdown" class="search-dropdown" role="listbox"></div>
+                </div>
+              </div>
+
+              <div>
+                <label class="field-label" for="mat-qty">Cantidad</label>
+                <div class="qty-stepper">
+                  <button class="qty-stepper__btn" id="mat-qty-minus" type="button" aria-label="Reducir">−</button>
+                  <input type="number" id="mat-qty" class="qty-input qty-input--stepper" value="1" min="1">
+                  <button class="qty-stepper__btn" id="mat-qty-plus"  type="button" aria-label="Aumentar">+</button>
+                </div>
+              </div>
+
+              <div style="padding-top:1.35rem">
+                <button id="mat-add-btn" class="btn btn-primary">Añadir</button>
+              </div>
+            </div>
+
+            <div id="mat-list" class="mat-list" aria-live="polite">
+              <p class="mat-list__empty">Ningún material añadido todavía.</p>
+            </div>
+
+          </section>
+
+        </div>
+
+        <!-- Panel derecho: ciudades + calcular -->
+        <section class="craft-panel craft-panel--side" aria-labelledby="panel-cities-title">
+          <h2 class="panel-title" id="panel-cities-title">
+            <span class="panel-step">3</span>
+            Ciudades
+          </h2>
+
+          <div id="cities-grid" class="cities-grid" role="group" aria-labelledby="panel-cities-title"></div>
+
+          <button id="calc-btn" class="btn btn-primary btn--full">▶ Calcular</button>
+        </section>
+
+      </div>
+
+
+      <!-- Resultados -->
+      <section id="results" class="results" aria-live="polite" aria-label="Resultados del craft">
+        <div class="results__placeholder">
+          <p>Los resultados aparecerán aquí después de calcular.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <div class="footer__brand-name">Dragones de Plata</div>
+          <p class="footer__brand-desc">Gremio de Albion Online. Fuerza en la unidad, honor en la batalla.</p>
+        </div>
+        <div class="footer__col">
+          <div class="footer__col-title">Secciones</div>
+          <nav class="footer__nav" aria-label="Navegación de pie de página">
+            <a href="../../index.html">Inicio</a>
+            <a href="../pertenencias.html">Pertenencias</a>
+            <a href="../objetivos.html">Objetivos</a>
+            <a href="../eventos.html">Eventos</a>
+            <a href="../herramientas.html">Herramientas</a>
+          </nav>
+        </div>
+        <div class="footer__col">
+          <div class="footer__col-title">Comunidad</div>
+          <nav class="footer__nav" aria-label="Redes del gremio">
+            <a href="#" target="_blank" rel="noopener">Discord</a>
+            <a href="#" target="_blank" rel="noopener">Reddit</a>
+            <a href="#" target="_blank" rel="noopener">Albion Online</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span class="footer__copy">© 2026 Dragones de Plata. Todos los derechos reservados.</span>
+        <span class="footer__server"><span class="footer__dot"></span>Servidor activo</span>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="../../js/nav.js?v=1"></script>
+  <script src="../../js/calculadora-craft.js?v=1"></script>
+
+</body>
+</html>
