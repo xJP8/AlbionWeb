@@ -259,6 +259,7 @@
   flex: 1;
   min-width: 0;
   background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 .qty-input--stepper:focus { box-shadow: none !important; }
@@ -476,6 +477,14 @@
 .city--blackmarket.city-toggle--active { color: #c9a032; border-color: rgba(201,160,50,0.4);  background: rgba(201,160,50,0.12); }
 
 .btn--full { width: 100%; justify-content: center; }
+
+.craft-qty-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.craft-qty-row .qty-stepper { width: 100%; }
 
 /* ── Results ────────────────────────────────────────────── */
 .results {
@@ -721,8 +730,7 @@
 }
 
 @media (max-width: 600px) {
-  .craft-item-row { grid-template-columns: 1fr 1fr; }
-  .craft-item-row > div:first-child { grid-column: 1 / -1; }
+  .craft-item-row { grid-template-columns: 1fr 130px 90px; }
   .mat-add-row { grid-template-columns: 1fr 1fr; }
   .mat-add-row > div:first-child { grid-column: 1 / -1; }
   .mat-add-row > div:last-child { grid-column: 1 / -1; }

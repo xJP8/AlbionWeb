@@ -45,12 +45,15 @@ function loadState() {
 }
 
 // ── DOM refs ─────────────────────────────────────────────
-const craftSearch    = document.getElementById("craft-search");
-const craftDropdown  = document.getElementById("craft-dropdown");
-const craftQty       = document.getElementById("craft-qty");
-const craftQtyMinus  = document.getElementById("craft-qty-minus");
-const craftQtyPlus   = document.getElementById("craft-qty-plus");
-const returnRateEl   = document.getElementById("return-rate");
+const craftSearch       = document.getElementById("craft-search");
+const craftDropdown     = document.getElementById("craft-dropdown");
+const craftItemQty      = document.getElementById("craft-item-qty");
+const craftItemQtyMinus = document.getElementById("craft-item-qty-minus");
+const craftItemQtyPlus  = document.getElementById("craft-item-qty-plus");
+const craftQty          = document.getElementById("craft-qty");
+const craftQtyMinus     = document.getElementById("craft-qty-minus");
+const craftQtyPlus      = document.getElementById("craft-qty-plus");
+const returnRateEl      = document.getElementById("return-rate");
 const craftBadge     = document.getElementById("craft-item-selected");
 
 const matSearch      = document.getElementById("mat-search");
@@ -210,7 +213,16 @@ function renderCraftBadge() {
   });
 }
 
-// ── Craft qty stepper ────────────────────────────────────
+// ── Craft item qty stepper (unidades por ciclo de craft) ─
+craftItemQtyMinus.addEventListener("click", () => {
+  const v = parseInt(craftItemQty.value, 10) || 1;
+  if (v > 1) craftItemQty.value = v - 1;
+});
+craftItemQtyPlus.addEventListener("click", () => {
+  craftItemQty.value = (parseInt(craftItemQty.value, 10) || 0) + 1;
+});
+
+// ── Craft qty stepper (cuántos craftear) ─────────────────
 craftQtyMinus.addEventListener("click", () => {
   const v = parseInt(craftQty.value, 10) || 1;
   if (v > 1) craftQty.value = v - 1;
@@ -369,8 +381,9 @@ function renderResults(priceData) {
     }
   });
 
-  const returnRate  = Math.max(0, Math.min(100, parseFloat(returnRateEl.value) || 0));
-  const craftQtyVal = Math.max(1, parseInt(craftQty.value, 10) || 1);
+  const returnRate    = Math.max(0, Math.min(100, parseFloat(returnRateEl.value) || 0));
+  const craftQtyVal   = Math.max(1, parseInt(craftQty.value, 10) || 1);     // cuántos craftear
+  const craftItemYield = Math.max(1, parseInt(craftItemQty.value, 10) || 1); // unidades por ciclo
   const cityLabel   = (id) => CITIES.find((c) => c.id === id)?.label ?? id;
   const cityCls     = (id) => CITIES.find((c) => c.id === id)?.cls   ?? "";
   const now         = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
@@ -409,7 +422,8 @@ function renderResults(priceData) {
     if (p > bestSellPrice) { bestSellPrice = p; bestSellCity = city; bestSellDate = entry?.date ?? null; }
   }
 
-  const grossIncome = bestSellPrice > 0 ? bestSellPrice * craftQtyVal : 0;
+  const totalUnits  = craftQtyVal * craftItemYield;
+  const grossIncome = bestSellPrice > 0 ? bestSellPrice * totalUnits : 0;
   const profit      = grossIncome - totalCost;
   const margin      = grossIncome > 0 ? ((profit / grossIncome) * 100).toFixed(1) : null;
 
@@ -455,7 +469,7 @@ function renderResults(priceData) {
     ? `<div class="city-badge-inline ${cityCls(bestSellCity)}"><span class="city-dot"></span>${cityLabel(bestSellCity)}</div>
        <span class="sell-row__arrow">→</span>
        <span class="price">${fmt(bestSellPrice)}</span> <span class="price-unit">plata/ud</span>
-       <span style="color:var(--color-text-muted);font-size:0.82rem">× ${craftQtyVal} =</span>
+       <span style="color:var(--color-text-muted);font-size:0.82rem">× ${totalUnits} =</span>
        <span class="price">${fmt(grossIncome)}</span> <span class="price-unit">plata</span>
        ${sellAge ? `<span class="price-age ${sellAge.cls}" style="margin-left:auto">${sellAge.text}</span>` : ""}`
     : `<span class="sell-row__nodata">Sin datos de venta para las ciudades seleccionadas.</span>`;

@@ -132,7 +132,7 @@ app.get("/api/items/search", async (req, res) => {
         ).toLowerCase();
         return name.includes(q) || item.UniqueName.toLowerCase().includes(q);
       })
-      .slice(0, 7); // 7 base × 5 variantes = 35 resultados máx.
+      .slice(0, 20); // 20 base × 5 variantes = 100 resultados máx.
 
     // Por cada item base, añadir solo las variantes encantadas que existen en el catálogo
     const results = [];

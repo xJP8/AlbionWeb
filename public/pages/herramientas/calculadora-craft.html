@@ -86,11 +86,11 @@
               </div>
 
               <div>
-                <label class="field-label" for="craft-qty">Cantidad</label>
+                <label class="field-label" for="craft-item-qty">Cantidad</label>
                 <div class="qty-stepper">
-                  <button class="qty-stepper__btn" id="craft-qty-minus" type="button" aria-label="Reducir">−</button>
-                  <input type="number" id="craft-qty" class="qty-input qty-input--stepper" value="1" min="1">
-                  <button class="qty-stepper__btn" id="craft-qty-plus"  type="button" aria-label="Aumentar">+</button>
+                  <button class="qty-stepper__btn" id="craft-item-qty-minus" type="button" aria-label="Reducir">−</button>
+                  <input type="number" id="craft-item-qty" class="qty-input qty-input--stepper" value="1" min="1">
+                  <button class="qty-stepper__btn" id="craft-item-qty-plus" type="button" aria-label="Aumentar">+</button>
                 </div>
               </div>
 
@@ -155,6 +155,15 @@
           </h2>
 
           <div id="cities-grid" class="cities-grid" role="group" aria-labelledby="panel-cities-title"></div>
+
+          <div class="craft-qty-row">
+            <label class="field-label" for="craft-qty">¿Cuántos craftear?</label>
+            <div class="qty-stepper">
+              <button class="qty-stepper__btn" id="craft-qty-minus" type="button" aria-label="Reducir">−</button>
+              <input type="number" id="craft-qty" class="qty-input qty-input--stepper" value="1" min="1">
+              <button class="qty-stepper__btn" id="craft-qty-plus" type="button" aria-label="Aumentar">+</button>
+            </div>
+          </div>
 
           <button id="calc-btn" class="btn btn-primary btn--full">▶ Calcular</button>
         </section>
