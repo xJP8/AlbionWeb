@@ -429,72 +429,57 @@ function renderResults(priceData) {
 
   // ── HTML ─────────────────────────────────────────────────
   const matRowsHtml = matRows.map((row) => {
-    const age  = timeAgo(row.cheapDate);
-    const meta = itemMetaText(row.mat.id);
-    const t    = tierNum(row.mat.id);
+    const t = tierNum(row.mat.id);
     return `
-      <tr>
-        <td>
-          <div class="table-item-cell">
-            <div class="table-item-img-wrap">
-              <img class="item-img item-img--sm" src="${itemImageUrl(row.mat.id)}" alt="${escapeHtml(row.mat.name)}" loading="lazy" onerror="this.style.visibility='hidden'">
-              ${t ? `<span class="table-tier-badge">${toRoman(t)}</span>` : ""}
-            </div>
-            <div>
-              <span class="table-item-name">${escapeHtml(row.mat.name)}${enchantBadgeHtml(row.mat.id)}</span>
-              ${meta ? `<span class="table-item-meta">${meta}</span>` : ""}
-            </div>
+      <div class="res-mat-row">
+        <div class="res-mat-row__info">
+          <div class="item-img-wrap">
+            <img class="item-img item-img--sm" src="${itemImageUrl(row.mat.id)}" alt="${escapeHtml(row.mat.name)}" loading="lazy" onerror="this.style.visibility='hidden'">
+            ${t ? `<span class="table-tier-badge">${toRoman(t)}</span>` : ""}
           </div>
-        </td>
-        <td class="text-right">${fmt(row.effectiveQty)}</td>
-        <td>
+          <div>
+            <span class="table-item-name">${escapeHtml(row.mat.name)}${enchantBadgeHtml(row.mat.id)}</span>
+            <span class="table-item-meta">× ${fmt(row.effectiveQty)} uds.</span>
+          </div>
+        </div>
+        <div class="res-mat-row__city">
           ${row.cheapCity
             ? `<div class="city-badge-inline ${cityCls(row.cheapCity)}"><span class="city-dot"></span>${cityLabel(row.cheapCity)}</div>`
             : `<span class="no-data">Sin datos</span>`}
-        </td>
-        <td class="text-right">
-          ${row.cheapPrice ? `<span class="price">${fmt(row.cheapPrice)}</span>` : `<span class="no-data">—</span>`}
-        </td>
-        <td class="text-right">
-          ${row.netCost ? `<span class="price">${fmt(row.netCost)}</span>` : `<span class="no-data">—</span>`}
-        </td>
-        <td class="text-right">
-          ${age ? `<span class="price-age ${age.cls}">${age.text}</span>` : `<span class="no-data">—</span>`}
-        </td>
-      </tr>`;
+        </div>
+        <div class="res-mat-row__cost">
+          ${row.netCost
+            ? `<span class="price">${fmt(row.netCost)}</span><span class="price-unit"> plata</span>`
+            : `<span class="no-data">—</span>`}
+        </div>
+      </div>`;
   }).join("");
 
-  const sellAge = timeAgo(bestSellDate);
   const sellHtml = bestSellCity
-    ? `<div class="city-badge-inline ${cityCls(bestSellCity)}"><span class="city-dot"></span>${cityLabel(bestSellCity)}</div>
-       <span class="sell-row__arrow">→</span>
-       <span class="price">${fmt(bestSellPrice)}</span> <span class="price-unit">plata/ud</span>
-       <span style="color:var(--color-text-muted);font-size:0.82rem">× ${totalUnits} =</span>
-       <span class="price">${fmt(grossIncome)}</span> <span class="price-unit">plata</span>
-       ${sellAge ? `<span class="price-age ${sellAge.cls}" style="margin-left:auto">${sellAge.text}</span>` : ""}`
-    : `<span class="sell-row__nodata">Sin datos de venta para las ciudades seleccionadas.</span>`;
+    ? `<div class="city-badge-inline ${cityCls(bestSellCity)} res-sell__city"><span class="city-dot"></span>${cityLabel(bestSellCity)}</div>
+       <div class="res-sell__price">
+         <span class="price">${fmt(bestSellPrice)}</span>
+         <span class="price-unit"> plata/ud${totalUnits > 1 ? ` × ${totalUnits} = <strong>${fmt(grossIncome)} plata</strong>` : ""}</span>
+       </div>`
+    : `<span class="no-data">Sin datos de venta para las ciudades seleccionadas.</span>`;
 
+  const profitSign = profit >= 0 ? "+" : "";
   const summaryHtml = `
-    <div class="summary-box">
-      <div class="summary-cell summary-cell--cost">
-        <span class="summary-cell__label">Coste materiales</span>
-        <span class="summary-cell__value">${totalCost ? fmt(totalCost) : "—"}</span>
-        <span class="summary-cell__unit">plata</span>
+    <div class="res-summary">
+      <div class="res-summary__cell">
+        <span class="res-summary__label">Coste</span>
+        <span class="res-summary__value res-summary__value--cost">${totalCost ? fmt(totalCost) : "—"}</span>
+        <span class="res-summary__unit">plata</span>
       </div>
-      <div class="summary-cell summary-cell--income">
-        <span class="summary-cell__label">Ingresos venta</span>
-        <span class="summary-cell__value">${grossIncome ? fmt(grossIncome) : "—"}</span>
-        <span class="summary-cell__unit">plata</span>
+      <div class="res-summary__cell">
+        <span class="res-summary__label">Ingresos</span>
+        <span class="res-summary__value res-summary__value--income">${grossIncome ? fmt(grossIncome) : "—"}</span>
+        <span class="res-summary__unit">plata</span>
       </div>
-      <div class="summary-cell summary-cell--profit ${profit < 0 ? "is-loss" : ""}">
-        <span class="summary-cell__label">Beneficio bruto</span>
-        <span class="summary-cell__value">${(totalCost && grossIncome) ? (profit >= 0 ? "+" : "") + fmt(profit) : "—"}</span>
-        <span class="summary-cell__unit">plata</span>
-      </div>
-      <div class="summary-cell summary-cell--margin">
-        <span class="summary-cell__label">Margen</span>
-        <span class="summary-cell__value">${margin !== null ? margin + "%" : "—"}</span>
-        <span class="summary-cell__unit">${returnRate > 0 ? `retorno ${returnRate}%` : "sin retorno"}</span>
+      <div class="res-summary__cell">
+        <span class="res-summary__label">Beneficio</span>
+        <span class="res-summary__value ${profit < 0 ? "res-summary__value--loss" : "res-summary__value--profit"}">${(totalCost && grossIncome) ? profitSign + fmt(profit) : "—"}</span>
+        <span class="res-summary__unit">${margin !== null ? margin + "% de margen" : "plata"}</span>
       </div>
     </div>`;
 
@@ -508,33 +493,16 @@ function renderResults(priceData) {
     </div>
 
     <div class="results__block">
-      <div class="results__block-title">Materiales — dónde comprar más barato</div>
-      <div style="overflow-x:auto">
-        <table class="results__table">
-          <thead>
-            <tr>
-              <th>Material</th>
-              <th class="text-right">Cantidad</th>
-              <th>Comprar en</th>
-              <th class="text-right">Precio/ud.</th>
-              <th class="text-right">Subtotal</th>
-              <th class="text-right">Actualizado</th>
-            </tr>
-          </thead>
-          <tbody>${matRowsHtml}</tbody>
-        </table>
-      </div>
+      <div class="results__block-title">Dónde comprar cada material</div>
+      <div class="res-mat-list">${matRowsHtml}</div>
     </div>
 
     <div class="results__block">
-      <div class="results__block-title">Venta — mejor ciudad para vender</div>
-      <div class="sell-row">${sellHtml}</div>
+      <div class="results__block-title">Dónde vender</div>
+      <div class="res-sell">${sellHtml}</div>
     </div>
 
-    <div class="results__block">
-      <div class="results__block-title">Resumen</div>
-      ${summaryHtml}
-    </div>
+    ${summaryHtml}
 
     <p class="results__disclaimer">
       Precios mínimos de venta según

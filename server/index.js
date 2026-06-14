@@ -121,18 +121,26 @@ app.get("/api/items/search", async (req, res) => {
   try {
     const items = await loadItems();
 
-    // Solo items base (sin @N) que coincidan con la búsqueda
+    // Solo items base (sin @N) que coincidan con la búsqueda, ordenados por relevancia
     const baseMatches = items
       .filter((item) => !item.UniqueName.includes("@"))
-      .filter((item) => {
+      .reduce((acc, item) => {
         const name = (
           item.LocalizedNames["ES-ES"] ||
           item.LocalizedNames["EN-US"] ||
           ""
         ).toLowerCase();
-        return name.includes(q) || item.UniqueName.toLowerCase().includes(q);
-      })
-      .slice(0, 20); // 20 base × 5 variantes = 100 resultados máx.
+        const uid = item.UniqueName.toLowerCase();
+        if (name === q || uid === q)              acc.push({ item, score: 0 }); // exacto
+        else if (name.startsWith(q))              acc.push({ item, score: 1 }); // empieza por
+        else if (uid.startsWith(q))               acc.push({ item, score: 2 });
+        else if (name.includes(q))                acc.push({ item, score: 3 }); // contiene
+        else if (uid.includes(q))                 acc.push({ item, score: 4 });
+        return acc;
+      }, [])
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 20)
+      .map(({ item }) => item);
 
     // Por cada item base, añadir solo las variantes encantadas que existen en el catálogo
     const results = [];
