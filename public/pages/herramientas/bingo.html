@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Bingo del gremio Dragones de Plata.">
+  <title>Dragones de Plata | Bingo</title>
+
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/nav.css">
+  <link rel="stylesheet" href="../../css/footer.css">
+  <link rel="stylesheet" href="../../css/bingo.css">
+
+  <link rel="icon" type="image/png" href="../../assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════ -->
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="container nav__inner">
+
+      <a href="../../index.html" class="nav__logo">
+        <img src="../../assets/img/logo.png" alt="Escudo Dragones de Plata" class="nav__logo-img">
+        <div class="nav__logo-text">
+          Dragones de Plata
+          <span>Albion Online</span>
+        </div>
+      </a>
+
+      <button class="nav__toggle" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav__links">
+        <li><a href="../../index.html">Inicio</a></li>
+        <li><a href="../pertenencias.html">Pertenencias</a></li>
+        <li><a href="../objetivos.html">Objetivos</a></li>
+        <li><a href="../eventos.html">Eventos</a></li>
+        <li><a href="../herramientas.html" class="nav__link--active">Herramientas</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="page-hero">
+    <div class="container">
+      <div class="page-hero__inner">
+        <p class="page-hero__eyebrow">Gremio · Herramientas · Bingo</p>
+        <h1 class="page-hero__title">Bingo <span>del Gremio</span></h1>
+        <p class="page-hero__desc">
+          Cartones de bingo en tiempo real. Selecciona tus cartones y sigue el juego.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       CONTENIDO
+  ══════════════════════════════════════════════════════ -->
+  <section class="bingo-section">
+    <div class="container">
+
+      <!-- Tabs -->
+      <div class="bingo-tabs">
+        <button class="bingo-tab" data-panel="panel-user">🎱 Ver cartones</button>
+        <button class="bingo-tab" data-panel="panel-admin">🔐 Admin</button>
+      </div>
+
+
+      <!-- ── PANEL USUARIO ─────────────────────────────── -->
+      <div class="bingo-panel bingo-panel--active" id="panel-user">
+
+        <!-- Último número -->
+        <div id="last-called-wrap"></div>
+
+        <!-- Selector de cartones -->
+        <div class="user-selector">
+          <span class="user-selector__label">Mis cartones</span>
+          <div class="user-selector__cards" id="user-card-btns">
+            <span style="color:var(--color-text-muted);font-size:0.85rem;">Cargando…</span>
+          </div>
+          <span class="user-selector__refresh">Actualización automática cada 4s</span>
+        </div>
+
+        <!-- Grid de cartones -->
+        <div class="cards-section">
+          <div class="cards-grid" id="user-cards-grid">
+            <div class="bingo-empty">
+              <div class="bingo-empty__icon">🎱</div>
+              <p>Cargando cartones…</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ── PANEL ADMIN ───────────────────────────────── -->
+      <div class="bingo-panel" id="panel-admin">
+
+        <!-- Lock -->
+        <div class="bingo-lock" id="admin-lock">
+          <div class="bingo-lock__icon">🔒</div>
+          <div class="bingo-lock__title">Acceso Admin</div>
+          <p class="bingo-lock__desc">Introduce la contraseña para acceder al panel de administración del bingo.</p>
+          <form class="bingo-lock__form" id="lock-form">
+            <input
+              type="password"
+              id="lock-input"
+              class="bingo-lock__input"
+              placeholder="Contraseña…"
+              autocomplete="current-password"
+              required
+            >
+            <button type="submit" class="btn btn-primary">Entrar</button>
+          </form>
+          <div class="bingo-lock__error" id="lock-error"></div>
+        </div>
+
+        <!-- Dashboard (oculto hasta autenticar) -->
+        <div class="admin-dashboard" id="admin-dashboard">
+
+          <!-- Controles -->
+          <div class="admin-controls">
+            <div class="admin-controls__title">Gestión del juego</div>
+            <div class="admin-controls__row">
+              <span class="admin-controls__label">Número de cartones:</span>
+              <select id="cards-count" class="admin-controls__select">
+                <option value="5">5 cartones</option>
+                <option value="6">6 cartones</option>
+                <option value="7">7 cartones</option>
+                <option value="8">8 cartones</option>
+                <option value="9">9 cartones</option>
+                <option value="10" selected>10 cartones</option>
+              </select>
+              <button id="btn-generate" class="btn btn-primary">Generar cartones</button>
+            </div>
+          </div>
+
+          <!-- Números llamados -->
+          <div class="called-numbers">
+            <div class="called-numbers__header">
+              <span class="called-numbers__title">Números llamados</span>
+              <span class="called-numbers__count" id="called-count">0 / 75</span>
+            </div>
+            <div class="called-numbers__grid" id="called-chips">
+              <span style="color:var(--color-text-muted);font-size:0.85rem;">Ningún número llamado todavía.</span>
+            </div>
+          </div>
+
+          <!-- Tablero de números -->
+          <div class="number-board">
+            <div class="number-board__title">Tablero de números</div>
+            <p class="number-board__hint">Pulsa un número para marcarlo como llamado. Pulsa de nuevo para desmarcarlo.</p>
+            <div class="number-board__columns" id="number-board-cols"></div>
+          </div>
+
+          <!-- Cartones admin -->
+          <div class="cards-section">
+            <div class="cards-section__title">Vista de cartones</div>
+            <div class="cards-grid" id="admin-cards-grid">
+              <div class="bingo-empty">
+                <div class="bingo-empty__icon">🎲</div>
+                <p>No hay cartones generados. Pulsa "Generar cartones" para empezar.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+
+      <div class="footer__inner">
+
+        <div class="footer__brand">
+          <div class="footer__brand-name">Dragones de Plata</div>
+          <p class="footer__brand-desc">
+            Gremio de Albion Online. Fuerza en la unidad, honor en la batalla.
+          </p>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Secciones</div>
+          <nav class="footer__nav" aria-label="Navegación de pie de página">
+            <a href="../../index.html">Inicio</a>
+            <a href="../pertenencias.html">Pertenencias</a>
+            <a href="../objetivos.html">Objetivos</a>
+            <a href="../eventos.html">Eventos</a>
+            <a href="../herramientas.html">Herramientas</a>
+          </nav>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Comunidad</div>
+          <nav class="footer__nav" aria-label="Redes del gremio">
+            <a href="#" target="_blank" rel="noopener">Discord</a>
+            <a href="#" target="_blank" rel="noopener">Reddit</a>
+            <a href="#" target="_blank" rel="noopener">Albion Online</a>
+          </nav>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <span class="footer__copy">© 2026 Dragones de Plata. Todos los derechos reservados.</span>
+        <span class="footer__server">
+          <span class="footer__dot"></span>
+          Servidor activo
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <script src="../../js/nav.js"></script>
+  <script src="../../js/bingo.js"></script>
+
+</body>
+</html>

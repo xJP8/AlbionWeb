@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -63,6 +63,86 @@ app.get("/api/news", async (req, res) => {
     res.json(JSON.parse(raw));
   } catch (err) {
     res.status(500).json({ error: "Error reading news" });
+  }
+});
+
+// ── Bingo ────────────────────────────────────────────────
+const BINGO_PASS = "dragones2026";
+const BINGO_FILE = join(__dirname, "../data/bingo.json");
+
+const BINGO_COLS = ['B','I','N','G','O'];
+const COL_RANGES = { B:[1,15], I:[16,30], N:[31,45], G:[46,60], O:[61,75] };
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function generateCard() {
+  return BINGO_COLS.map((col, ci) => {
+    const [min, max] = COL_RANGES[col];
+    const pool = [];
+    for (let n = min; n <= max; n++) pool.push(n);
+    const picked = shuffle(pool).slice(0, 5);
+    if (ci === 2) picked[2] = 'FREE';
+    return picked;
+  });
+}
+
+async function readBingo() {
+  try {
+    const raw = await readFile(BINGO_FILE, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    return { cards: [], calledNumbers: [] };
+  }
+}
+
+async function writeBingo(data) {
+  await writeFile(BINGO_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
+
+app.get("/api/bingo", async (req, res) => {
+  try {
+    res.json(await readBingo());
+  } catch (err) {
+    res.status(500).json({ error: "Error reading bingo" });
+  }
+});
+
+app.post("/api/bingo", express.json(), async (req, res) => {
+  const { action, password, count, number } = req.body || {};
+  if (password !== BINGO_PASS) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    if (action === "verify") return res.json({ ok: true });
+
+    const state = await readBingo();
+
+    if (action === "reset") {
+      const n = Math.min(Math.max(parseInt(count) || 10, 1), 10);
+      state.cards = Array.from({ length: n }, generateCard);
+      state.calledNumbers = [];
+      await writeBingo(state);
+      return res.json(state);
+    }
+
+    if (action === "toggle") {
+      const n = parseInt(number);
+      if (!n || n < 1 || n > 75) return res.status(400).json({ error: "Invalid number" });
+      const idx = state.calledNumbers.indexOf(n);
+      if (idx === -1) state.calledNumbers.push(n);
+      else state.calledNumbers.splice(idx, 1);
+      await writeBingo(state);
+      return res.json(state);
+    }
+
+    res.status(400).json({ error: "Unknown action" });
+  } catch (err) {
+    res.status(500).json({ error: "Bingo error" });
   }
 });
 
