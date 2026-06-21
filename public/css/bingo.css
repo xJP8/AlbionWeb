@@ -125,6 +125,79 @@
 .admin-controls__input:focus { border-color: var(--color-accent); }
 .admin-controls__input::-webkit-inner-spin-button { opacity: 0.4; }
 
+/* ── Slot machine ────────────────────────────────────────── */
+.slot-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.slot-section__title {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+.slot-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.slot-machine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.slot-machine__window {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.slot-machine__window.spinning {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 20px var(--color-accent-glow);
+  animation: slot-pulse 0.15s infinite alternate;
+}
+.slot-machine__window.landed {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 40px var(--color-accent-glow);
+  animation: slot-land 0.4s ease;
+}
+@keyframes slot-pulse {
+  from { box-shadow: 0 0 10px var(--color-accent-glow); }
+  to   { box-shadow: 0 0 30px var(--color-accent-glow); }
+}
+@keyframes slot-land {
+  0%   { transform: scale(1.15); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.slot-machine__window img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+}
+.slot-machine__name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-silver);
+  min-width: 140px;
+}
+.slot-spin-btn { font-size: 1rem; padding: 0.75rem 2rem; }
+.slot-spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ── Monturas llamadas ───────────────────────────────────── */
 .called-numbers {
   background: var(--color-surface);

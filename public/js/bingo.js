@@ -409,5 +409,69 @@ function stopUserPoll() {
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
 
+/* ══════════════════════════════════════════════════════════
+   SLOT MACHINE
+══════════════════════════════════════════════════════════ */
+const slotWindow = document.getElementById('slot-machine').querySelector('.slot-machine__window');
+const slotImg    = document.getElementById('slot-img');
+const slotName   = document.getElementById('slot-name');
+const btnSpin    = document.getElementById('btn-spin');
+
+btnSpin.addEventListener('click', async () => {
+  // Obtener estado actual para saber cuáles no han salido
+  let state;
+  try { state = await apiFetch('/api/bingo'); } catch { return; }
+
+  const calledSet = new Set(state.calledNumbers);
+  const remaining = MOUNTS.filter(m => !calledSet.has(m.id));
+
+  if (remaining.length === 0) {
+    alert('¡Todas las monturas ya han sido llamadas!');
+    return;
+  }
+
+  // Elegir ganadora
+  const winner = remaining[Math.floor(Math.random() * remaining.length)];
+
+  btnSpin.disabled = true;
+  slotWindow.classList.remove('landed');
+  slotWindow.classList.add('spinning');
+
+  // Animar: ciclar por monturas aleatorias durante ~2.5s
+  const totalMs   = 2500;
+  const start     = Date.now();
+  let   interval  = 60; // ms entre frames (empieza rápido)
+
+  function nextFrame() {
+    const elapsed = Date.now() - start;
+    const progress = elapsed / totalMs;
+
+    if (progress >= 1) {
+      // Mostrar ganadora
+      slotImg.src  = RENDER(winner.id);
+      slotName.textContent = winner.name;
+      slotWindow.classList.remove('spinning');
+      slotWindow.classList.add('landed');
+      btnSpin.disabled = false;
+
+      // Llamar la montura
+      toggleMount(winner.id);
+      return;
+    }
+
+    // Frame aleatorio (hacia el final usa más la ganadora para suavizar)
+    const showWinner = progress > 0.75 && Math.random() < (progress - 0.75) * 4;
+    const pick = showWinner ? winner : remaining[Math.floor(Math.random() * remaining.length)];
+    slotImg.src = RENDER(pick.id);
+    slotName.textContent = pick.name;
+
+    // Ralentizar progresivamente
+    interval = 60 + Math.pow(progress, 2) * 400;
+    setTimeout(nextFrame, interval);
+  }
+
+  nextFrame();
+});
+
 /* ── Init ─────────────────────────────────────────────────── */
 startUserPoll();

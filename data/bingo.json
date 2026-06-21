@@ -371,5 +371,8 @@
       ]
     ]
   ],
-  "calledNumbers": []
+  "calledNumbers": [
+    "T2_MOUNT_MULE",
+    "UNIQUE_MOUNT_BASTION_CRYSTAL"
+  ]
 }

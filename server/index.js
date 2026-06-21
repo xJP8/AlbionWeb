@@ -196,10 +196,9 @@ app.post("/api/bingo", express.json(), async (req, res) => {
     }
 
     if (action === "toggle") {
-      const n = parseInt(number);
-      if (!n || n < 1 || n > 75) return res.status(400).json({ error: "Invalid number" });
-      const idx = state.calledNumbers.indexOf(n);
-      if (idx === -1) state.calledNumbers.push(n);
+      if (!number || typeof number !== "string") return res.status(400).json({ error: "Invalid mount id" });
+      const idx = state.calledNumbers.indexOf(number);
+      if (idx === -1) state.calledNumbers.push(number);
       else state.calledNumbers.splice(idx, 1);
       await writeBingo(state);
       return res.json(state);
