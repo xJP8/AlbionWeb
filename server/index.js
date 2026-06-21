@@ -70,8 +70,32 @@ app.get("/api/news", async (req, res) => {
 const BINGO_PASS = "dragones2026";
 const BINGO_FILE = join(__dirname, "../data/bingo.json");
 
-const BINGO_COLS = ['B','I','N','G','O'];
-const COL_RANGES = { B:[1,15], I:[16,30], N:[31,45], G:[46,60], O:[61,75] };
+const MOUNTS = [
+  'T4_MOUNT_HORSE', 'T6_MOUNT_HORSE', 'T8_MOUNT_HORSE',
+  'T5_MOUNT_ARMORED_HORSE', 'T7_MOUNT_ARMORED_HORSE', 'T8_MOUNT_ARMORED_HORSE',
+  'T2_MOUNT_MULE',
+  'T6_MOUNT_DIREWOLF',
+  'T5_MOUNT_GREYWOLF_FW_CAERLEON', 'T8_MOUNT_GREYWOLF_FW_CAERLEON_ELITE',
+  'T7_MOUNT_DIREBOAR',
+  'T5_MOUNT_DIREBOAR_FW_LYMHURST', 'T8_MOUNT_DIREBOAR_FW_LYMHURST_ELITE',
+  'UNIQUE_MOUNT_UNDEAD_DIREBOAR_ADC',
+  'T7_MOUNT_SWAMPDRAGON',
+  'T5_MOUNT_SWAMPDRAGON_FW_THETFORD', 'T8_MOUNT_SWAMPDRAGON_FW_THETFORD_ELITE',
+  'T7_MOUNT_ARMORED_SWAMPDRAGON_BATTLE',
+  'T7_MOUNT_SWAMPDRAGON_AVALON_BASILISK',
+  'T5_MOUNT_MOABIRD_FW_BRIDGEWATCH', 'T8_MOUNT_MOABIRD_FW_BRIDGEWATCH_ELITE',
+  'UNIQUE_MOUNT_MOABIRD_TELLAFRIEND',
+  'T4_MOUNT_GIANTSTAG', 'T6_MOUNT_GIANTSTAG_MOOSE',
+  'UNIQUE_MOUNT_GIANTSTAG_FOUNDER_EPIC',
+  'T8_MOUNT_DIREBEAR',
+  'T5_MOUNT_DIREBEAR_FW_FORTSTERLING', 'T8_MOUNT_DIREBEAR_FW_FORTSTERLING_ELITE',
+  'UNIQUE_MOUNT_BEAR_KEEPER_ADC',
+  'T5_MOUNT_RAM_FW_MARTLOCK', 'T8_MOUNT_RAM_FW_MARTLOCK_ELITE',
+  'UNIQUE_MOUNT_RAM_TELLAFRIEND', 'T6_MOUNT_FROSTRAM_ADC',
+  'T7_MOUNT_TERRORBIRD_ADC',
+  'UNIQUE_MOUNT_BEETLE_CRYSTAL', 'UNIQUE_MOUNT_BEETLE_GOLD', 'UNIQUE_MOUNT_BEETLE_SILVER',
+  'UNIQUE_MOUNT_BAT_PERSONAL',
+];
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -82,14 +106,17 @@ function shuffle(arr) {
 }
 
 function generateCard() {
-  return BINGO_COLS.map((col, ci) => {
-    const [min, max] = COL_RANGES[col];
-    const pool = [];
-    for (let n = min; n <= max; n++) pool.push(n);
-    const picked = shuffle(pool).slice(0, 5);
-    if (ci === 2) picked[2] = 'FREE';
-    return picked;
-  });
+  const picks = shuffle([...MOUNTS]).slice(0, 24);
+  const card = [];
+  let idx = 0;
+  for (let c = 0; c < 5; c++) {
+    const col = [];
+    for (let r = 0; r < 5; r++) {
+      col.push(c === 2 && r === 2 ? 'FREE' : picks[idx++]);
+    }
+    card.push(col);
+  }
+  return card;
 }
 
 async function readBingo() {
@@ -123,7 +150,7 @@ app.post("/api/bingo", express.json(), async (req, res) => {
     const state = await readBingo();
 
     if (action === "reset") {
-      const n = Math.min(Math.max(parseInt(count) || 10, 1), 10);
+      const n = Math.min(Math.max(parseInt(count) || 10, 1), 100);
       state.cards = Array.from({ length: n }, generateCard);
       state.calledNumbers = [];
       await writeBingo(state);

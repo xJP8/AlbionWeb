@@ -133,14 +133,14 @@
             <div class="admin-controls__title">Gestión del juego</div>
             <div class="admin-controls__row">
               <span class="admin-controls__label">Número de cartones:</span>
-              <select id="cards-count" class="admin-controls__select">
-                <option value="5">5 cartones</option>
-                <option value="6">6 cartones</option>
-                <option value="7">7 cartones</option>
-                <option value="8">8 cartones</option>
-                <option value="9">9 cartones</option>
-                <option value="10" selected>10 cartones</option>
-              </select>
+              <input
+                type="number"
+                id="cards-count"
+                class="admin-controls__input"
+                value="10"
+                min="1"
+                placeholder="Nº cartones"
+              >
               <button id="btn-generate" class="btn btn-primary">Generar cartones</button>
             </div>
           </div>
@@ -158,8 +158,8 @@
 
           <!-- Tablero de números -->
           <div class="number-board">
-            <div class="number-board__title">Tablero de números</div>
-            <p class="number-board__hint">Pulsa un número para marcarlo como llamado. Pulsa de nuevo para desmarcarlo.</p>
+            <div class="number-board__title">Tablero de monturas</div>
+            <p class="number-board__hint">Pulsa una montura para marcarla como llamada. Pulsa de nuevo para desmarcarlo.</p>
             <div class="number-board__columns" id="number-board-cols"></div>
           </div>
 
