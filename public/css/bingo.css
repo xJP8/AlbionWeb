@@ -73,7 +73,7 @@
 .bingo-lock__icon { font-size: 3rem; margin-bottom: var(--space-sm); }
 .bingo-lock__title { font-family: var(--font-display); font-size: 1.2rem; color: var(--color-silver); margin-bottom: 0.5rem; }
 .bingo-lock__desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: var(--space-md); }
-.bingo-lock__form { display: flex; gap: 0.5rem; }
+.bingo-lock__form { display: flex; gap: 0.5rem; justify-content: center; align-items: center; }
 .bingo-lock__input {
   flex: 1;
   background: var(--color-surface-2);
