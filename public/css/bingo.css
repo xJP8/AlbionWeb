@@ -331,18 +331,18 @@
   color: var(--color-accent);
 }
 .bingo-card__bingo-badge {
-  display: none;
   font-family: var(--font-display);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: #fff;
-  background: var(--color-accent);
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-sm);
 }
-.bingo-card--winner .bingo-card__bingo-badge { display: inline-block; }
+.bingo-card__bingo-badge--linea { background: #2a7a2a; }
+.bingo-card__bingo-badge--bingo { background: var(--color-accent); color: #000; }
+.bingo-card--full { border-color: #e8c04a; box-shadow: 0 0 50px rgba(232,192,74,0.5); }
 
 /* ── Grid 5×5 ────────────────────────────────────────────── */
 .bingo-card__grid { padding: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }

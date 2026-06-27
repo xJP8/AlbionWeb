@@ -287,8 +287,10 @@ function renderAdminCards(cards, called) {
 /* ── Construir cartón DOM ────────────────────────────────── */
 function buildCard(card, calledSet, num) {
   const el = document.createElement('div');
-  const hasBingo = checkBingo(card, calledSet);
-  el.className = 'bingo-card' + (hasBingo ? ' bingo-card--winner' : '');
+  const win = checkWin(card, calledSet);
+  el.className = 'bingo-card' + (win ? ' bingo-card--winner' : '') + (win === 'bingo' ? ' bingo-card--full' : '');
+
+  const badgeText = win === 'bingo' ? '¡BINGO!' : win === 'linea' ? '¡LÍNEA!' : '';
 
   const rows = [0, 1, 2, 3, 4].map(row =>
     `<div class="bingo-card__row">${[0, 1, 2, 3, 4].map(ci => {
@@ -305,20 +307,28 @@ function buildCard(card, calledSet, num) {
   el.innerHTML = `
     <div class="bingo-card__header">
       <span class="bingo-card__num">Cartón #${num}</span>
-      <span class="bingo-card__bingo-badge">¡BINGO!</span>
+      ${win ? `<span class="bingo-card__bingo-badge bingo-card__bingo-badge--${win}">${badgeText}</span>` : ''}
     </div>
     <div class="bingo-card__grid">${rows}</div>
   `;
   return el;
 }
 
-/* ── Detectar BINGO ──────────────────────────────────────── */
-function checkBingo(card, calledSet) {
+/* ── Detectar LÍNEA / BINGO ──────────────────────────────── */
+function checkWin(card, calledSet) {
   const hit = (ci, ri) => { const v = card[ci][ri]; return v === 'FREE' || calledSet.has(v); };
-  for (let r = 0; r < 5; r++) if ([0,1,2,3,4].every(c => hit(c, r))) return true;
-  for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => hit(c, r))) return true;
-  if ([0,1,2,3,4].every(i => hit(i, i))) return true;
-  if ([0,1,2,3,4].every(i => hit(i, 4 - i))) return true;
+
+  // Bingo completo (toda la carta)
+  if ([0,1,2,3,4].every(c => [0,1,2,3,4].every(r => hit(c, r)))) return 'bingo';
+
+  // Filas horizontales
+  for (let r = 0; r < 5; r++) if ([0,1,2,3,4].every(c => hit(c, r))) return 'linea';
+  // Columnas verticales
+  for (let c = 0; c < 5; c++) if ([0,1,2,3,4].every(r => hit(c, r))) return 'linea';
+  // Diagonales
+  if ([0,1,2,3,4].every(i => hit(i, i))) return 'linea';
+  if ([0,1,2,3,4].every(i => hit(i, 4 - i))) return 'linea';
+
   return false;
 }
 
