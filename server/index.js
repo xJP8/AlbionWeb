@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 import { readFile, writeFile } from "fs/promises";
@@ -54,15 +54,6 @@ app.get("/api/guild/members", async (req, res) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: "Error members" });
-  }
-});
-
-app.get("/api/news", async (req, res) => {
-  try {
-    const raw = await readFile(join(__dirname, "../data/news.json"), "utf-8");
-    res.json(JSON.parse(raw));
-  } catch (err) {
-    res.status(500).json({ error: "Error reading news" });
   }
 });
 
@@ -207,15 +198,6 @@ app.post("/api/bingo", express.json(), async (req, res) => {
     res.status(400).json({ error: "Unknown action" });
   } catch (err) {
     res.status(500).json({ error: "Bingo error" });
-  }
-});
-
-app.get("/api/events", async (req, res) => {
-  try {
-    const raw = await readFile(join(__dirname, "../data/events.json"), "utf-8");
-    res.json(JSON.parse(raw));
-  } catch (err) {
-    res.status(500).json({ error: "Error reading events" });
   }
 });
 
