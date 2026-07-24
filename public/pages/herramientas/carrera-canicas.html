@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Carrera de canicas del gremio Dragones de Plata. Un participante por línea, gana la primera canica en cruzar la meta.">
+  <title>Dragones de Plata | Carrera de Canicas</title>
+
+  <link rel="stylesheet" href="../../css/variables.css">
+  <link rel="stylesheet" href="../../css/nav.css">
+  <link rel="stylesheet" href="../../css/footer.css">
+  <link rel="stylesheet" href="../../css/carrera-canicas.css">
+
+  <link rel="icon" type="image/png" href="../../assets/img/logo.png">
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════ -->
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="container nav__inner">
+
+      <a href="../../index.html" class="nav__logo">
+        <img src="../../assets/img/logo.png" alt="Escudo Dragones de Plata" class="nav__logo-img">
+        <div class="nav__logo-text">
+          Dragones de Plata
+          <span>Albion Online</span>
+        </div>
+      </a>
+
+      <button class="nav__toggle" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav__links">
+        <li><a href="../../index.html">Inicio</a></li>
+        <li><a href="../herramientas.html" class="nav__link--active">Herramientas</a></li>
+      </ul>
+
+    </div>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="page-hero">
+    <div class="container">
+      <p class="page-hero__eyebrow">Gremio · Herramientas · Carrera de Canicas</p>
+      <h1 class="page-hero__title">Carrera <span>de Canicas</span></h1>
+      <p class="page-hero__desc">
+        Un participante por línea. Bifurcaciones, aspas giratorias, paletas y topes de rebote.
+        Gana la primera canica en cruzar la meta.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       CONTENIDO
+  ══════════════════════════════════════════════════════ -->
+  <section class="canicas-section">
+    <div class="container">
+
+      <div class="canicas">
+
+        <div class="canicas__side">
+          <label for="canicas-names" class="canicas__label">Participantes</label>
+          <textarea id="canicas-names" class="canicas__textarea" spellcheck="false">Ana
+Bruno
+Carla
+Diego
+Elena
+Fran</textarea>
+
+          <div class="canicas__row">
+            <button id="canicas-start" class="canicas__btn canicas__btn--primary">Correr</button>
+            <button id="canicas-track" class="canicas__btn">Nuevo circuito</button>
+          </div>
+
+          <div class="canicas__opts">
+            <div><span>Velocidad</span><input id="canicas-speed" type="range" min="0.5" max="3" step="0.1" value="1"><span id="canicas-speedv">1.0x</span></div>
+            <div><span>Longitud</span><input id="canicas-len" type="range" min="3" max="12" step="1" value="6"><span id="canicas-lenv">6</span></div>
+          </div>
+
+          <ul id="canicas-board" class="canicas__board"></ul>
+        </div>
+
+        <div class="canicas__stage">
+          <canvas id="canicas-canvas" class="canicas__canvas" width="420" height="660"></canvas>
+          <div id="canicas-verdict" class="canicas__verdict">Escribe los nombres y pulsa Correr.</div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+
+      <div class="footer__inner">
+
+        <div class="footer__brand">
+          <div class="footer__brand-name">Dragones de Plata</div>
+          <p class="footer__brand-desc">
+            Gremio de Albion Online. Fuerza en la unidad, honor en la batalla.
+          </p>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Secciones</div>
+          <nav class="footer__nav" aria-label="Navegación de pie de página">
+            <a href="../../index.html">Inicio</a>
+            <a href="../herramientas.html">Herramientas</a>
+          </nav>
+        </div>
+
+        <div class="footer__col">
+          <div class="footer__col-title">Comunidad</div>
+          <nav class="footer__nav" aria-label="Redes del gremio">
+            <a href="https://discord.gg/cTH2y3g2FX" target="_blank" rel="noopener">Discord</a>
+            <a href="#" target="_blank" rel="noopener">Albion Online</a>
+          </nav>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <span class="footer__copy">© 2026 Dragones de Plata. Todos los derechos reservados.</span>
+        <span class="footer__server">
+          <span class="footer__dot"></span>
+          Servidor activo
+        </span>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- Scripts -->
+  <script src="../../js/nav.js"></script>
+  <script src="../../js/carrera-canicas.js"></script>
+
+</body>
+</html>
