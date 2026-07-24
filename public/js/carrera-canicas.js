@@ -82,16 +82,22 @@
         bars.push({ x1: VW, y1: y, x2: VW / 2 + 40, y2: y + 135 });
         for (let r = 0; r < 3; r++) bumpers.push({ x: VW / 2 + (r % 2 ? 34 : -34), y: y + 180 + r * 52, r: 12, glow: 0 });
         y += 350;
-      } else {                             // pinball: cascada de embudos que rebotan + topes
+      } else {                             // pinball: embudos anchos que rebotan + un tope central
+        // la boca es ancha (garganta de 110px) y solo hay un tope centrado
+        // con espacio de sobra a cada lado: si la canica rebota en una
+        // pared, tiene sitio para cruzar de largo en vez de quedar
+        // rebotando en bucle entre pared y tope.
         const cx6 = VW / 2;
         for (let i = 0; i < 3; i++) {
-          const fy = y + i * 170;
-          trampolines.push({ x1: 10, y1: fy, x2: cx6 - 30, y2: fy + 110 });
-          trampolines.push({ x1: VW - 10, y1: fy, x2: cx6 + 30, y2: fy + 110 });
-          bumpers.push({ x: cx6 - 20, y: fy + 135, r: 11, glow: 0 });
-          bumpers.push({ x: cx6 + 20, y: fy + 135, r: 11, glow: 0 });
+          const fy = y + i * 190;
+          trampolines.push({ x1: 10, y1: fy, x2: cx6 - 55, y2: fy + 120 });
+          trampolines.push({ x1: VW - 10, y1: fy, x2: cx6 + 55, y2: fy + 120 });
+          // tope suave y con empujón lateral: si le diera fuerte hacia
+          // arriba (como los topes normales) la pared rebotando justo
+          // encima la devolvería una y otra vez sin dejarla avanzar.
+          bumpers.push({ x: cx6, y: fy + 165, r: 14, glow: 0, power: 0.8, kick: 6 });
         }
-        y += 3 * 170 + 60;
+        y += 3 * 190 + 60;
       }
       y += 30;
     }
@@ -176,8 +182,9 @@
           const nx = dx / d, ny = dy / d;
           m.x = p.x + nx * (m.r + p.r); m.y = p.y + ny * (m.r + p.r);
           const dot = m.vx * nx + m.vy * ny;
-          m.vx = (m.vx - 2 * dot * nx) * 0.75 + nx * 4.2;
-          m.vy = (m.vy - 2 * dot * ny) * 0.75 + ny * 4.2;
+          const power = p.power !== undefined ? p.power : 4.2;
+          m.vx = (m.vx - 2 * dot * nx) * 0.75 + nx * power + (p.kick ? rnd(-p.kick, p.kick) : 0);
+          m.vy = (m.vy - 2 * dot * ny) * 0.75 + ny * power;
           p.glow = 14;
         }
       }
@@ -205,14 +212,8 @@
         }
       }
 
-      if (!skipObstacles) for (const b of trampolines) {   // superficies que rebotan con fuerza
-        if (hitSeg(m, b.x1, b.y1, b.x2, b.y2, 6, 0, 0, 0.92, 0.99)) {
-          const bl = Math.hypot(b.x2 - b.x1, b.y2 - b.y1) || 1;
-          const dirx = (b.x2 - b.x1) / bl, diry = (b.y2 - b.y1) / bl;
-          const sg = diry >= 0 ? 1 : -1;
-          m.vx += dirx * sg * 0.4 + rnd(-0.6, 0.6);
-          m.vy += Math.abs(diry) * 0.3;
-        }
+      if (!skipObstacles) for (const b of trampolines) {   // superficies que rebotan (menos que un tope, para no sumarse a su empujón)
+        hitSeg(m, b.x1, b.y1, b.x2, b.y2, 6, 0, 0, 0.3, 0.94);
       }
 
       if (!skipObstacles) for (const r of rotors) {               // aspas: empujan de verdad
