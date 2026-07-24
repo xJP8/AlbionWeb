@@ -7,17 +7,17 @@
   speedEl.oninput = () => $('canicas-speedv').textContent = (+speedEl.value).toFixed(1) + 'x';
   lenEl.oninput = () => { $('canicas-lenv').textContent = lenEl.value; buildTrack(); };
 
-  let pegs = [], bumpers = [], bars = [], rotors = [], paddles = [];
+  let pegs = [], bumpers = [], bars = [], rotors = [], paddles = [], apexes = [], trampolines = [];
   let worldH = 0, marbles = [], finished = [], running = false, cam = 0, t = 0;
 
   const rnd = (a, b) => a + Math.random() * (b - a);
 
   function buildTrack() {
-    pegs = []; bumpers = []; bars = []; rotors = []; paddles = [];
+    pegs = []; bumpers = []; bars = []; rotors = []; paddles = []; apexes = []; trampolines = [];
     const sections = +lenEl.value;
     let y = 230;
     const kinds = [];
-    for (let s = 0; s < sections; s++) kinds.push(s === 0 ? 0 : Math.floor(rnd(0, 6)));
+    for (let s = 0; s < sections; s++) kinds.push(s === 0 ? 0 : Math.floor(rnd(0, 7)));
 
     for (const k of kinds) {
       if (k === 0) {                       // bosque de clavos con algún tope
@@ -39,6 +39,11 @@
         y += 3 * 92 + 70;
       } else if (k === 2) {                // bifurcación: cuña + dos canales
         const cx = VW / 2;
+        // en la punta de la cuña las dos rampas se tocan en un único punto:
+        // una canica que cae justo en el centro puede quedar balanceándose
+        // sin decidirse por ningún lado. El apex la manda a un canal al
+        // azar (50/50), sin importar por dónde llegue.
+        apexes.push({ x: cx, y, r: 10, glow: 0 });
         bars.push({ x1: cx, y1: y, x2: cx - 105, y2: y + 130 });
         bars.push({ x1: cx, y1: y, x2: cx + 105, y2: y + 130 });
         bars.push({ x1: cx - 105, y1: y + 130, x2: cx - 105, y2: y + 300 });
@@ -72,11 +77,19 @@
           paddles.push({ cx: VW / 2, y: y + r * 130, w: 78, amp: 105, ph: rnd(0, 6.28), spd: rnd(0.016, 0.026) });
         }
         y += 290;
-      } else {                             // embudo con topes
+      } else if (k === 5) {                // embudo con topes
         bars.push({ x1: 0, y1: y, x2: VW / 2 - 40, y2: y + 135 });
         bars.push({ x1: VW, y1: y, x2: VW / 2 + 40, y2: y + 135 });
         for (let r = 0; r < 3; r++) bumpers.push({ x: VW / 2 + (r % 2 ? 34 : -34), y: y + 180 + r * 52, r: 12, glow: 0 });
         y += 350;
+      } else {                             // trampolines: rebote fuerte, mucho caos
+        for (let r = 0; r < 4; r++) {
+          const left = r % 2 === 0;
+          trampolines.push(left
+            ? { x1: 15, y1: y + r * 76, x2: VW - 55, y2: y + r * 76 + 44 }
+            : { x1: VW - 15, y1: y + r * 76, x2: 55, y2: y + r * 76 + 44 });
+        }
+        y += 4 * 76 + 60;
       }
       y += 30;
     }
@@ -93,7 +106,8 @@
       r: Math.max(8, 13 - names.length * 0.25),
       color: PAL[i % PAL.length],
       done: false, place: 0,
-      bestY: 0, stallFrames: 0, phase: 0
+      bestY: 0, stallFrames: 0, phase: 0,
+      _apexRef: null, _apexSide: 0
     }));
   }
 
@@ -126,6 +140,7 @@
     for (const r of rotors) r.ang += r.spd;
     for (const p of paddles) p.ph += p.spd;
     for (const b of bumpers) if (b.glow > 0) b.glow--;
+    for (const p of apexes) if (p.glow > 0) p.glow--;
 
     const G = 0.31;
     for (const m of marbles) {
@@ -172,6 +187,29 @@
           const sg = diry >= 0 ? 1 : -1;
           m.vx += dirx * sg * 0.26;
           m.vy += Math.abs(diry) * 0.16;
+        }
+      }
+
+      if (!skipObstacles) for (const p of apexes) {   // punta de bifurcación: reparte al azar
+        const dx = m.x - p.x, dy = m.y - p.y, d = Math.hypot(dx, dy);
+        if (d < m.r + p.r) {
+          if (m._apexRef !== p) { m._apexRef = p; m._apexSide = Math.random() < 0.5 ? -1 : 1; }
+          const nx = m._apexSide, ny = 1, len = Math.hypot(nx, ny);
+          m.x = p.x + (nx / len) * (m.r + p.r);
+          m.y = p.y + (ny / len) * (m.r + p.r);
+          m.vx += m._apexSide * 3.2;
+          m.vy = Math.max(m.vy, 1.5);
+          p.glow = 14;
+        }
+      }
+
+      if (!skipObstacles) for (const b of trampolines) {   // superficies que rebotan con fuerza
+        if (hitSeg(m, b.x1, b.y1, b.x2, b.y2, 6, 0, 0, 0.92, 0.99)) {
+          const bl = Math.hypot(b.x2 - b.x1, b.y2 - b.y1) || 1;
+          const dirx = (b.x2 - b.x1) / bl, diry = (b.y2 - b.y1) / bl;
+          const sg = diry >= 0 ? 1 : -1;
+          m.vx += dirx * sg * 0.4 + rnd(-0.6, 0.6);
+          m.vy += Math.abs(diry) * 0.3;
         }
       }
 
@@ -239,6 +277,20 @@
     for (const b of bars) {
       if (!vis(Math.min(b.y1, b.y2)) && !vis(Math.max(b.y1, b.y2))) continue;
       ctx.beginPath(); ctx.moveTo(b.x1, b.y1); ctx.lineTo(b.x2, b.y2); ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#7ee081'; ctx.lineWidth = 10;
+    for (const b of trampolines) {
+      if (!vis(Math.min(b.y1, b.y2)) && !vis(Math.max(b.y1, b.y2))) continue;
+      ctx.beginPath(); ctx.moveTo(b.x1, b.y1); ctx.lineTo(b.x2, b.y2); ctx.stroke();
+    }
+
+    for (const p of apexes) {
+      if (!vis(p.y)) continue;
+      ctx.fillStyle = p.glow > 0 ? '#ffe9a8' : '#c9a032';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.55, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(201,160,50,0.35)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.stroke();
     }
 
     ctx.fillStyle = '#5c6a80';
