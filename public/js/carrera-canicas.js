@@ -24,24 +24,28 @@
     wall:        { fill: '#15171e' },
     peg:         { fill: '#5c6a80' },
     bumper:      { fill: '#ff5c38', glow: '#ffd8c8', ring: 'rgba(255,92,56,0.35)' },
-    spinner:     { fill: '#9fb4c7' },
+    spinner:     { fill: '#9db9d6', glow: '#dbe8f7' },
     hub:         { fill: '#0a0c11', stroke: '#5c6a80' },
     paddlePush:  { fill: '#c9a032' },
     paddleBrake: { fill: '#6a6252' },
     paddleProps: { fill: '#7ee081' },
-    funnel:      { fill: '#b8863a', glow: '#ffe1a8' },
-    chevron:     { fill: '#4a5468' },
-    ring:        { fill: '#9fb4c7' },
+    funnel:      { fill: '#c79542', glow: '#ffe1a8' },
+    chevron:     { fill: '#5b6b84' },
+    ring:        { fill: '#9db9d6' },
     ringbump:    { fill: '#ff8fab', glow: '#ffd6e2' },
     gate:        { fill: '#b83030', glow: '#ff6b6b' },
     barrier:     { fill: '#4a5468' },
+    conveyor:    { fill: '#3aa6a0' },
+    tramp:       { fill: '#3ad67a', glow: '#b8ffd0' },
+    cannon:      { fill: '#d0662a' },
   };
 
   // ── Estado global ───────────────────────────────────────
   let engine, world;
   let racers = [];          // { name, color, body, finished, place, r }
   let actuators = [];       // obstáculos móviles con update(dt)
-  let zones = [];           // fuerzas de zona (sesgo del zigzag)
+  let zones = [];           // fuerzas de zona (sesgo del zigzag, viento)
+  let cannons = [];         // zonas-cañón que disparan la canica al entrar
   let obstacleBodies = [];  // para dibujar (todo lo estático/cinemático)
   let worldH = 0, finishY = 0;
   let running = false, t = 0;
@@ -54,7 +58,6 @@
   // ── Canvas de las tres cámaras ──────────────────────────
   const cams = {
     lider:   { cv: $('canicas-cam-lider'),   cx: VW / 2, cy: 0, zoom: 1, target: 0 },
-    peloton: { cv: $('canicas-cam-peloton'), cx: VW / 2, cy: 0, zoom: 1, target: 0 },
     general: { cv: $('canicas-cam-general'), cx: VW / 2, cy: 0, zoom: 0.5, target: 0 },
   };
   for (const k in cams) cams[k].ctx = cams[k].cv.getContext('2d');
@@ -74,7 +77,7 @@
     engine = Engine.create();
     world = engine.world;
     engine.gravity.y = 1;
-    obstacleBodies = []; actuators = []; zones = [];
+    obstacleBodies = []; actuators = []; zones = []; cannons = [];
     Events.on(engine, 'collisionStart', onCollisionStart);
     Events.on(engine, 'collisionActive', onCollisionActive);
   }
@@ -111,23 +114,23 @@
   // el lado "dominante": una fuerza de zona suave empuja a las
   // canicas hacia un lado u otro, distinto en cada carrera.
   function secZigzag(y, dominant) {
-    const rows = 4, step = 96, arm = 150, thick = 12;   // brazos cortos: dejan hueco junto a los muros
-    const top = y;
+    // Rampas alternas que SÍ llegan al muro: cada fila arranca hundida en
+    // un muro y baja hasta dejar un hueco junto al muro opuesto, por donde
+    // la canica cae a la siguiente. El lado del hueco alterna → zigzag.
+    const rows = 5, step = 84, thick = 14, opening = 100;
     for (let r = 0; r < rows; r++) {
-      const yy = y + 30 + r * step;
-      const peak = r % 2 === 0;               // ∧ arriba / ∨ abajo, alternado y simétrico
-      const dy = peak ? 60 : -60;
-      // dos brazos que forman la V, tocándose en el centro
-      const b1 = Bodies.rectangle(VW / 4, yy + dy / 2, arm, thick,
-        { isStatic: true, friction: 0.02, restitution: 0.2,
-          angle: Math.atan2(dy, arm) });
-      const b2 = Bodies.rectangle(VW * 3 / 4, yy + dy / 2, arm, thick,
-        { isStatic: true, friction: 0.02, restitution: 0.2,
-          angle: -Math.atan2(dy, arm) });
-      Composite.add(world, [reg(b1, 'chevron'), reg(b2, 'chevron')]);
+      const yy = y + 40 + r * step;
+      const ltr = r % 2 === 0;
+      const x1 = ltr ? -14 : VW + 14;          // extremo hundido en el muro
+      const x2 = ltr ? VW - opening : opening;  // extremo con el hueco de caída
+      const y1 = yy, y2 = yy + 46;
+      Composite.add(world, reg(Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2,
+        Math.hypot(x2 - x1, y2 - y1), thick,
+        { isStatic: true, friction: 0.02, restitution: 0.18, angle: Math.atan2(y2 - y1, x2 - x1) }),
+        'chevron'));
     }
-    const bottom = y + 30 + rows * step;
-    zones.push({ y0: top, y1: bottom, fx: dominant * 0.10 });
+    const bottom = y + 40 + rows * step;
+    zones.push({ y0: y, y1: bottom, fx: dominant * 0.07 });
     return bottom + 30;
   }
 
@@ -142,11 +145,9 @@
     const body = Body.create({ parts, isStatic: true, friction: 0.02 });
     Body.setPosition(body, { x, y });
     const spin = (Math.random() < 0.5 ? -1 : 1) * rnd(0.03, 0.055);
-    reg(body, 'spinner', { spin, power, len });
+    reg(body, 'spinner', { spin, power, len, blades });
     actuators.push({ body, update() { Body.setAngle(body, body.angle + spin); } });
     Composite.add(world, body);
-    // buje central decorativo (no colisiona en la práctica: dentro del aspa)
-    Composite.add(world, reg(Bodies.circle(x, y, 7, { isStatic: true }), 'hub'));
     return body;
   }
   function secAspas(y) {
@@ -164,7 +165,7 @@
     for (let r = 0; r < 2; r++) {
       const mode = pick(['paddlePush', 'paddleBrake', 'paddleProps']);
       const w = 82, cxp = VW / 2, amp = 108, ph0 = rnd(0, 6.28), spd = rnd(0.02, 0.032);
-      const body = Bodies.rectangle(cxp, y + 70 + r * rowGap, w * 2, 15,
+      const body = Bodies.rectangle(cxp, y + 70 + r * rowGap, w * 2, 18,
         { isStatic: true, friction: mode === 'paddleBrake' ? 0.5 : 0.05, restitution: 0.2 });
       const st = { ph: ph0, prevX: cxp };
       reg(body, mode, { vx: 0 });
@@ -287,15 +288,75 @@
     return barY + 90;
   }
 
+  // ── Cinta transportadora: arrastra con fuerza hacia un lado ─
+  function secCinta(y) {
+    const dir0 = Math.random() < 0.5 ? 1 : -1;
+    for (let r = 0; r < 2; r++) {
+      const d = r % 2 === 0 ? dir0 : -dir0;
+      const yy = y + 70 + r * 150;
+      const x1 = d > 0 ? -14 : VW + 14;         // arranca en un muro
+      const x2 = d > 0 ? VW - 96 : 96;          // baja suave hasta el hueco opuesto
+      const y1 = yy, y2 = yy + 26;
+      Composite.add(world, reg(Bodies.rectangle((x1 + x2) / 2, (y1 + y2) / 2,
+        Math.hypot(x2 - x1, y2 - y1), 16,
+        { isStatic: true, friction: 0.05, restitution: 0.1, angle: Math.atan2(y2 - y1, x2 - x1) }),
+        'conveyor', { drag: d * 1.1 }));
+    }
+    return y + 70 + 2 * 150 + 20;
+  }
+
+  // ── Trampolín: pads muy rebotones que lanzan la canica ──────
+  function secTrampolin(y) {
+    for (let r = 0; r < 3; r++) {
+      const yy = y + 80 + r * 130;
+      const left = r % 2 === 0;
+      const px = left ? VW * 0.34 : VW * 0.66;
+      const ang = left ? -0.32 : 0.32;
+      Composite.add(world, reg(Bodies.rectangle(px, yy, 150, 16,
+        { isStatic: true, friction: 0.02, restitution: 0.9, angle: ang }),
+        'tramp', { power: 7 }));
+    }
+    return y + 80 + 3 * 130 + 30;
+  }
+
+  // ── Zona de viento: empuje lateral constante en un área ─────
+  function secViento(y) {
+    const dir = Math.random() < 0.5 ? 1 : -1, h = 320;
+    // clavos dispersos para que se note cómo el viento las desvía
+    for (let r = 0; r < 4; r++) {
+      const off = r % 2 ? 42 : 0;
+      for (let x = 60 + off; x < VW - 50; x += 84)
+        Composite.add(world, reg(Bodies.circle(x, y + 45 + r * 68, 6, STATIC), 'peg'));
+    }
+    zones.push({ y0: y, y1: y + h, fx: dir * 0.13, wind: dir });
+    return y + h + 20;
+  }
+
+  // ── Cañón: recoge la canica y la dispara hacia un lado ──────
+  function secCanon(y) {
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    const mouthX = dir > 0 ? VW * 0.26 : VW * 0.74, cy = y + 120;
+    const backX = mouthX - dir * 52;
+    // cuchara en L abierta hacia el lado de disparo
+    Composite.add(world, reg(Bodies.rectangle(backX, cy, 14, 108, { isStatic: true }), 'cannon'));
+    Composite.add(world, reg(Bodies.rectangle(mouthX, cy + 54, 118, 14, { isStatic: true }), 'cannon'));
+    cannons.push({
+      x0: Math.min(backX, mouthX + dir * 60), x1: Math.max(backX, mouthX + dir * 60),
+      y0: cy + 20, y1: cy + 54, vx: dir * 16, vy: -5, x: mouthX, y: cy, dir, glow: 0,
+    });
+    return cy + 130;
+  }
+
   // ════════════════════════════════════════════════════════
   //  ENSAMBLAJE DEL CIRCUITO (con sinergia de encadenado)
   // ════════════════════════════════════════════════════════
   const SECTIONS = {
     clavos: secClavos, zigzag: secZigzag, aspas: secAspas, paletas: secPaletas,
     embudo: secEmbudo, pinball: secPinball, anillo: secAnillo, compuertas: secCompuertas,
+    cinta: secCinta, tramp: secTrampolin, viento: secViento, canon: secCanon,
   };
-  const BOTTLENECKS = ['embudo', 'anillo', 'compuertas'];
-  const CHAOS = ['aspas', 'pinball', 'clavos'];
+  const BOTTLENECKS = ['embudo', 'anillo', 'compuertas', 'canon'];
+  const CHAOS = ['aspas', 'pinball', 'clavos', 'tramp'];
 
   function buildTrack() {
     makeWorld();
@@ -390,6 +451,9 @@
       } else if (op.kind === 'gate' && op.closed) {
         op.glow = t + 12;
         addVel(m, rnd(-2, 2), -5.5);            // compuerta cerrada empuja hacia arriba
+      } else if (op.kind === 'tramp') {         // trampolín: rebote grande extra
+        op.glow = t + 12;
+        addVel(m, (nx / d) * op.power, (ny / d) * op.power);
       }
     }
   }
@@ -407,6 +471,8 @@
         Body.setVelocity(m, { x: m.velocity.x * 0.86, y: m.velocity.y * 0.9 });
       } else if (op.kind === 'funnel') {        // empuja hacia el centro-abajo
         addVel(m, op.side * 0.25, 0.12);
+      } else if (op.kind === 'conveyor') {      // cinta: arrastra fuerte de lado
+        addVel(m, op.drag, 0);
       }
     }
   }
@@ -415,6 +481,8 @@
   //  SIMULACIÓN
   // ════════════════════════════════════════════════════════
   const DT = 1000 / 60;
+  const SUB = 3;   // subpasos de física: evita que las canicas rápidas
+                   // atraviesen barras finas (paletas, embudos, compuertas)
   function substep() {
     t++;
     for (const a of actuators) a.update(DT);
@@ -424,12 +492,23 @@
       for (const z of zones)
         if (rc.body.position.y > z.y0 && rc.body.position.y < z.y1) addVel(rc.body, z.fx, 0);
     }
-    Engine.update(engine, DT);
+    // cañones: si una canica está en la cuchara, la disparan
+    for (const cn of cannons) {
+      for (const rc of racers) {
+        if (rc.finished) continue;
+        const p = rc.body.position;
+        if (p.x > cn.x0 && p.x < cn.x1 && p.y > cn.y0 && p.y < cn.y1) {
+          Body.setVelocity(rc.body, { x: cn.vx, y: cn.vy });
+          cn.glow = t + 10;
+        }
+      }
+    }
+    for (let s = 0; s < SUB; s++) Engine.update(engine, DT / SUB);
     // límites de velocidad + antiatasco + meta
     for (const rc of racers) {
       if (rc.finished) continue;
       const b = rc.body, v = b.velocity, sp = Math.hypot(v.x, v.y);
-      if (sp > 24) Body.setVelocity(b, { x: v.x / sp * 24, y: v.y / sp * 24 });
+      if (sp > 19) Body.setVelocity(b, { x: v.x / sp * 19, y: v.y / sp * 19 });
 
       // Antiatasco por falta de PROGRESO sostenido (≥12px hacia abajo): sirve
       // igual para una canica encajada contra un muro (parada) que para una
@@ -481,17 +560,6 @@
     if (l.length) lead = Math.max(...l.map(r => r.body.position.y));
     cams.lider.target = lead;
 
-    // Pelotón: centro del clúster más numeroso por proximidad en y.
-    if (l.length) {
-      const ys = l.map(r => r.body.position.y);
-      let best = ys[0], bestN = -1;
-      for (const c of ys) {
-        const near = ys.filter(y => Math.abs(y - c) < 130);
-        if (near.length > bestN) { bestN = near.length; best = near.reduce((a, b) => a + b, 0) / near.length; }
-      }
-      cams.peloton.target = best;
-    } else cams.peloton.target = finishY;
-
     // General: encuadra a todas las canicas activas con zoom dinámico.
     if (l.length) {
       const ys = l.map(r => r.body.position.y);
@@ -500,9 +568,9 @@
       cams.general.spanTarget = Math.max(maxY - minY, 260);
     } else { cams.general.cyTarget = finishY; cams.general.spanTarget = 400; }
 
-    // Suavizado (lerp)
-    for (const k of ['lider', 'peloton']) {
-      const cam = cams[k];
+    // Suavizado (lerp) — Cam 1º puesto sigue al líder a ancho completo
+    {
+      const cam = cams.lider;
       cam.cy += (clamp(cam.target, viewTop(cam), worldH) - cam.cy) * 0.12;
       cam.zoom = cam.cv.width / VW;             // ancho completo siempre
     }
@@ -527,12 +595,50 @@
   function polys(body) {
     return body.parts.length > 1 ? body.parts.slice(1) : body.parts;
   }
+  // Dibuja un rectángulo (una "part") como barra de extremos redondeados.
+  function drawBar(ctx, part, color) {
+    const v = part.vertices;
+    const e0 = Math.hypot(v[1].x - v[0].x, v[1].y - v[0].y);
+    const e1 = Math.hypot(v[2].x - v[1].x, v[2].y - v[1].y);
+    let a, b, w;
+    if (e0 <= e1) {
+      a = { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2 };
+      b = { x: (v[2].x + v[3].x) / 2, y: (v[2].y + v[3].y) / 2 }; w = e0;
+    } else {
+      a = { x: (v[1].x + v[2].x) / 2, y: (v[1].y + v[2].y) / 2 };
+      b = { x: (v[3].x + v[0].x) / 2, y: (v[3].y + v[0].y) / 2 }; w = e1;
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+
+  // Aspa: palas redondeadas que salen de un buje central bien visible.
+  function drawSpinner(ctx, body, s, glowing) {
+    const cx = body.position.x, cy = body.position.y;
+    const len = body.plugin.len || 82, bl = body.plugin.blades || 2;
+    ctx.strokeStyle = glowing ? s.glow : s.fill; ctx.lineWidth = 14; ctx.lineCap = 'round';
+    for (let i = 0; i < bl; i++) {
+      const a = body.angle + (Math.PI / bl) * i, c = Math.cos(a), sn = Math.sin(a);
+      ctx.beginPath();
+      ctx.moveTo(cx - c * len, cy - sn * len);
+      ctx.lineTo(cx + c * len, cy + sn * len);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#12151c';
+    ctx.beginPath(); ctx.arc(cx, cy, 10, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = '#c9a032'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(cx, cy, 10, 0, 6.2832); ctx.stroke();
+  }
+
   function drawBody(ctx, body) {
     const p = body.plugin || {}, s = STYLE[p.kind] || { fill: '#3a4150' };
     const glowing = p.glow && p.glow > t;
-    ctx.fillStyle = glowing && s.glow ? s.glow : s.fill;
+    if (p.kind === 'spinner') { drawSpinner(ctx, body, s, glowing); return; }
+
+    const col = glowing && s.glow ? s.glow : s.fill;
     if (body.circleRadius && body.parts.length === 1) {
       const r = body.circleRadius + (glowing ? 2 : 0);
+      ctx.fillStyle = col;
       ctx.beginPath(); ctx.arc(body.position.x, body.position.y, r, 0, 6.2832); ctx.fill();
       if (s.ring) { ctx.strokeStyle = s.ring; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(body.position.x, body.position.y, r + 6, 0, 6.2832); ctx.stroke(); }
@@ -540,7 +646,9 @@
       return;
     }
     for (const part of polys(body)) {
+      if (part.vertices.length === 4) { drawBar(ctx, part, col); continue; }
       const v = part.vertices;
+      ctx.fillStyle = col;
       ctx.beginPath(); ctx.moveTo(v[0].x, v[0].y);
       for (let i = 1; i < v.length; i++) ctx.lineTo(v[i].x, v[i].y);
       ctx.closePath(); ctx.fill();
@@ -564,11 +672,32 @@
       ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(VW, gy); ctx.stroke();
     }
 
+    // zonas de viento: banda translúcida con flechas en su dirección
+    for (const z of zones) {
+      if (!z.wind || z.y1 < top || z.y0 > bot) continue;
+      ctx.fillStyle = 'rgba(120,180,225,0.05)';
+      ctx.fillRect(0, z.y0, VW, z.y1 - z.y0);
+      ctx.strokeStyle = 'rgba(150,205,240,0.28)'; ctx.lineWidth = 2;
+      for (let ay = z.y0 + 34; ay < z.y1; ay += 60) {
+        const x0 = z.wind > 0 ? 40 : VW - 40, x1 = z.wind > 0 ? VW - 40 : 40, hx = z.wind > 0 ? -10 : 10;
+        ctx.beginPath(); ctx.moveTo(x0, ay); ctx.lineTo(x1, ay);
+        ctx.moveTo(x1, ay); ctx.lineTo(x1 + hx, ay - 6);
+        ctx.moveTo(x1, ay); ctx.lineTo(x1 + hx, ay + 6); ctx.stroke();
+      }
+    }
+
     // obstáculos visibles
     for (const b of obstacleBodies) {
       const by = b.position.y, ext = (b.plugin && b.plugin.R) ? b.plugin.R + 40 : 200;
       if (by + ext < top || by - ext > bot) continue;
       drawBody(ctx, b);
+    }
+
+    // destello de disparo de los cañones
+    for (const cn of cannons) {
+      if (cn.glow <= t || cn.y < top || cn.y > bot) continue;
+      ctx.fillStyle = 'rgba(255,180,90,0.5)';
+      ctx.beginPath(); ctx.arc(cn.x, cn.y + 30, 16, 0, 6.2832); ctx.fill();
     }
 
     // meta

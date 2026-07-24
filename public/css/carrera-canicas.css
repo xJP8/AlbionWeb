@@ -118,16 +118,9 @@
 .canicas__cams {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  grid-template-areas:
-    "lider   general"
-    "peloton general";
   gap: 12px;
   align-items: start;
 }
-.canicas__cam--lider   { grid-area: lider; }
-.canicas__cam--peloton { grid-area: peloton; }
-.canicas__cam--general { grid-area: general; }
 
 .canicas__cam {
   position: relative;
@@ -136,7 +129,6 @@
   overflow: hidden;
   background: #0a0c11;
 }
-.canicas__cam--general { align-self: stretch; }
 
 .canicas__cam-tag {
   position: absolute;
@@ -192,13 +184,7 @@
 .canicas__board-item--done .canicas__board-pos { color: var(--color-accent); font-weight: 700; }
 
 @media (max-width: 860px) {
-  .canicas__cams {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "lider"
-      "peloton"
-      "general";
-  }
+  .canicas__cams { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
