@@ -82,14 +82,16 @@
         bars.push({ x1: VW, y1: y, x2: VW / 2 + 40, y2: y + 135 });
         for (let r = 0; r < 3; r++) bumpers.push({ x: VW / 2 + (r % 2 ? 34 : -34), y: y + 180 + r * 52, r: 12, glow: 0 });
         y += 350;
-      } else {                             // trampolines: rebote fuerte, mucho caos
-        for (let r = 0; r < 4; r++) {
-          const left = r % 2 === 0;
-          trampolines.push(left
-            ? { x1: 15, y1: y + r * 76, x2: VW - 55, y2: y + r * 76 + 44 }
-            : { x1: VW - 15, y1: y + r * 76, x2: 55, y2: y + r * 76 + 44 });
+      } else {                             // pinball: cascada de embudos que rebotan + topes
+        const cx6 = VW / 2;
+        for (let i = 0; i < 3; i++) {
+          const fy = y + i * 170;
+          trampolines.push({ x1: 10, y1: fy, x2: cx6 - 30, y2: fy + 110 });
+          trampolines.push({ x1: VW - 10, y1: fy, x2: cx6 + 30, y2: fy + 110 });
+          bumpers.push({ x: cx6 - 20, y: fy + 135, r: 11, glow: 0 });
+          bumpers.push({ x: cx6 + 20, y: fy + 135, r: 11, glow: 0 });
         }
-        y += 4 * 76 + 60;
+        y += 3 * 170 + 60;
       }
       y += 30;
     }
