@@ -81,7 +81,8 @@
       vx: rnd(-0.7, 0.7), vy: 0,
       r: Math.max(8, 13 - names.length * 0.25),
       color: PAL[i % PAL.length],
-      done: false, place: 0
+      done: false, place: 0,
+      bestY: 0, stallFrames: 0, phase: 0
     }));
   }
 
@@ -124,7 +125,13 @@
       if (m.x < m.r) { m.x = m.r; m.vx = Math.abs(m.vx) * 0.42 + 0.2; }
       if (m.x > VW - m.r) { m.x = VW - m.r; m.vx = -Math.abs(m.vx) * 0.42 - 0.2; }
 
-      for (const p of pegs) {
+      // anti-atasco: si lleva mucho sin avanzar (p. ej. balanceándose sobre
+      // una paleta en resonancia), se ignoran los obstáculos unos frames
+      // para forzar la caída y romper el bucle.
+      if (m.phase > 0) m.phase--;
+      const skipObstacles = m.phase > 0;
+
+      if (!skipObstacles) for (const p of pegs) {
         const dx = m.x - p.x, dy = m.y - p.y, d = Math.hypot(dx, dy);
         if (d < m.r + p.r && d > 0) {
           const nx = dx / d, ny = dy / d;
@@ -135,7 +142,7 @@
         }
       }
 
-      for (const p of bumpers) {              // topes: devuelven MÁS energía
+      if (!skipObstacles) for (const p of bumpers) {              // topes: devuelven MÁS energía
         const dx = m.x - p.x, dy = m.y - p.y, d = Math.hypot(dx, dy);
         if (d < m.r + p.r && d > 0) {
           const nx = dx / d, ny = dy / d;
@@ -147,7 +154,7 @@
         }
       }
 
-      for (const b of bars) {
+      if (!skipObstacles) for (const b of bars) {
         if (hitSeg(m, b.x1, b.y1, b.x2, b.y2, 5, 0, 0, 0.18, 0.965)) {
           const bl = Math.hypot(b.x2 - b.x1, b.y2 - b.y1) || 1;
           const dirx = (b.x2 - b.x1) / bl, diry = (b.y2 - b.y1) / bl;
@@ -157,7 +164,7 @@
         }
       }
 
-      for (const r of rotors) {               // aspas: empujan de verdad
+      if (!skipObstacles) for (const r of rotors) {               // aspas: empujan de verdad
         const c = Math.cos(r.ang), s = Math.sin(r.ang);
         const x1 = r.x - c * r.len, y1 = r.y - s * r.len;
         const x2 = r.x + c * r.len, y2 = r.y + s * r.len;
@@ -168,7 +175,7 @@
         }
       }
 
-      for (const p of paddles) {              // paletas: barren de lado a lado
+      if (!skipObstacles) for (const p of paddles) {              // paletas: barren de lado a lado
         const px = p.cx + Math.sin(p.ph) * p.amp;
         const svx = Math.cos(p.ph) * p.spd * p.amp;
         hitSeg(m, px - p.w, p.y, px + p.w, p.y, 6, svx * 1.4, 0, 0.35, 0.95);
@@ -177,6 +184,9 @@
       m.vx *= 0.995;
       if (Math.abs(m.vx) < 0.02) m.vx += rnd(-0.15, 0.15);
       m.vx = Math.max(-9, Math.min(9, m.vx));
+
+      if (m.y > m.bestY + 0.05) { m.bestY = m.y; m.stallFrames = 0; }
+      else if (m.phase <= 0 && ++m.stallFrames > 90) { m.phase = 40; m.stallFrames = 0; }
 
       if (m.y > worldH) { m.done = true; finished.push(m); m.place = finished.length; }
     }

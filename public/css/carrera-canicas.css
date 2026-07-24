@@ -115,11 +115,15 @@
 .canicas__opts input[type=range] { flex: 1; accent-color: var(--color-accent); }
 
 .canicas__canvas {
-  width: 100%;
   display: block;
+  width: auto;
+  max-width: 100%;
+  height: min(70vh, 660px);
+  aspect-ratio: 420 / 660;
   background: #0a0c11;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  margin: 0 auto;
 }
 
 .canicas__verdict {
