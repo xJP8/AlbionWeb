@@ -44,8 +44,19 @@
         bars.push({ x1: cx - 105, y1: y + 130, x2: cx - 105, y2: y + 300 });
         bars.push({ x1: cx + 105, y1: y + 130, x2: cx + 105, y2: y + 300 });
         // canal izquierdo: clavos apretados (lento pero seguro)
-        for (let r = 0; r < 4; r++)
-          for (let x = 40; x < cx - 110; x += 40) pegs.push({ x: x + (r % 2 ? 20 : 0), y: y + 160 + r * 40, r: 6 });
+        // el borde derecho de los clavos se mantiene alejado del muro
+        // (cx - 105): si se solapan, la canica queda encajada en la
+        // rendija entre el clavo y el muro y no cae nunca.
+        {
+          const leftWallX = cx - 105;
+          const pegGapToWall = 25;
+          for (let r = 0; r < 4; r++) {
+            const off = r % 2 ? 20 : 0;
+            for (let x = 40; x + off + 6 <= leftWallX - pegGapToWall; x += 40) {
+              pegs.push({ x: x + off, y: y + 160 + r * 40, r: 6 });
+            }
+          }
+        }
         // canal derecho: caída libre con un tope al final (rápido pero caótico)
         bumpers.push({ x: cx + 160, y: y + 270, r: 13, glow: 0 });
         bars.push({ x1: cx - 105, y1: y + 300, x2: cx - 30, y2: y + 370 });
