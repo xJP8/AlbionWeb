@@ -114,16 +114,50 @@
 .canicas__opts div { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .canicas__opts input[type=range] { flex: 1; accent-color: var(--color-accent); }
 
-.canicas__canvas {
-  display: block;
-  width: auto;
-  max-width: 100%;
-  height: min(70vh, 660px);
-  aspect-ratio: 420 / 660;
-  background: #0a0c11;
+/* ── Cámaras (retransmisión) ─────────────────────────────── */
+.canicas__cams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "lider   general"
+    "peloton general";
+  gap: 12px;
+  align-items: start;
+}
+.canicas__cam--lider   { grid-area: lider; }
+.canicas__cam--peloton { grid-area: peloton; }
+.canicas__cam--general { grid-area: general; }
+
+.canicas__cam {
+  position: relative;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  margin: 0 auto;
+  overflow: hidden;
+  background: #0a0c11;
+}
+.canicas__cam--general { align-self: stretch; }
+
+.canicas__cam-tag {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-silver);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+.canicas__cam--general .canicas__cam-tag { font-size: 0.82rem; color: var(--color-accent); }
+
+.canicas__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0a0c11;
 }
 
 .canicas__verdict {
@@ -156,6 +190,16 @@
 .canicas__board-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
 .canicas__board-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .canicas__board-item--done .canicas__board-pos { color: var(--color-accent); font-weight: 700; }
+
+@media (max-width: 860px) {
+  .canicas__cams {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "lider"
+      "peloton"
+      "general";
+  }
+}
 
 @media (max-width: 640px) {
   .canicas__side { width: 100%; flex: 1 1 100%; }

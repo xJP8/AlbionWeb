@@ -51,7 +51,8 @@
       <p class="page-hero__eyebrow">Gremio · Herramientas · Carrera de Canicas</p>
       <h1 class="page-hero__title">Carrera <span>de Canicas</span></h1>
       <p class="page-hero__desc">
-        Un participante por línea. Bifurcaciones, aspas giratorias, paletas y topes de rebote.
+        Un participante por línea. Física real con aspas giratorias, paletas, embudos,
+        pinball, anillos y compuertas, retransmitido con tres cámaras en directo.
         Gana la primera canica en cruzar la meta.
       </p>
     </div>
@@ -89,7 +90,20 @@ Fran</textarea>
         </div>
 
         <div class="canicas__stage">
-          <canvas id="canicas-canvas" class="canicas__canvas" width="420" height="660"></canvas>
+          <div class="canicas__cams">
+            <div class="canicas__cam canicas__cam--lider">
+              <span class="canicas__cam-tag">Cam 1º puesto</span>
+              <canvas id="canicas-cam-lider" class="canicas__canvas" width="420" height="300"></canvas>
+            </div>
+            <div class="canicas__cam canicas__cam--peloton">
+              <span class="canicas__cam-tag">Cam Pelotón</span>
+              <canvas id="canicas-cam-peloton" class="canicas__canvas" width="420" height="300"></canvas>
+            </div>
+            <div class="canicas__cam canicas__cam--general">
+              <span class="canicas__cam-tag">Cam General</span>
+              <canvas id="canicas-cam-general" class="canicas__canvas" width="420" height="624"></canvas>
+            </div>
+          </div>
           <div id="canicas-verdict" class="canicas__verdict">Escribe los nombres y pulsa Correr.</div>
         </div>
 
@@ -146,6 +160,7 @@ Fran</textarea>
 
   <!-- Scripts -->
   <script src="../../js/nav.js"></script>
+  <script src="../../js/vendor/matter.min.js"></script>
   <script src="../../js/carrera-canicas.js"></script>
 
 </body>
